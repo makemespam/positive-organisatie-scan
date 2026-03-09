@@ -20,11 +20,11 @@ type Lead = {
   email: string;
 };
 
-const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
-const EMAILJS_USER_TEMPLATE_ID = "YOUR_TEMPLATE_ID_USER";
-const EMAILJS_ADMIN_TEMPLATE_ID = "YOUR_TEMPLATE_ID_ADMIN";
-const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY";
-const ADMIN_EMAIL = "admin@example.com";
+const EMAILJS_SERVICE_ID = (process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "").trim();
+const EMAILJS_USER_TEMPLATE_ID = (process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_USER ?? "").trim();
+const EMAILJS_ADMIN_TEMPLATE_ID = (process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_ADMIN ?? "").trim();
+const EMAILJS_PUBLIC_KEY = (process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY ?? "").trim();
+const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "").trim();
 
 const isEmailJsConfigured = () =>
   ![
@@ -33,7 +33,7 @@ const isEmailJsConfigured = () =>
     EMAILJS_ADMIN_TEMPLATE_ID,
     EMAILJS_PUBLIC_KEY,
     ADMIN_EMAIL,
-  ].some((value) => value.includes("YOUR_") || value.includes("example.com"));
+  ].some((value) => !value || value.includes("YOUR_") || value.includes("example.com"));
 
 export default function Home() {
   const [step, setStep] = useState<Step>("welcome");
@@ -42,6 +42,7 @@ export default function Home() {
   const [lead, setLead] = useState<Lead>({ name: "", email: "" });
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
   const [mailStatus, setMailStatus] = useState<"idle" | "sent" | "failed">("idle");
+  const [mailError, setMailError] = useState<string>("");
 
   const currentQuestion = questions[currentQuestionIndex];
   const currentScore = answers[currentQuestionIndex];
@@ -100,6 +101,7 @@ export default function Home() {
     event.preventDefault();
     setIsSubmittingLead(true);
     setMailStatus("idle");
+    setMailError("");
 
     try {
       if (isEmailJsConfigured()) {
@@ -136,6 +138,13 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error sending EmailJS messages", error);
+      const msg =
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" && error !== null && "text" in error
+            ? String((error as { text: string }).text)
+            : String(error);
+      setMailError(msg);
       setMailStatus("failed");
     } finally {
       setIsSubmittingLead(false);
@@ -354,9 +363,15 @@ export default function Home() {
               </p>
             )}
             {mailStatus === "failed" && (
-              <p className="rounded-xl bg-amber-100 p-3 text-sm text-amber-800">
-                De resultaten zijn berekend, maar verzenden via EmailJS is nog niet gelukt. Controleer je keys.
-              </p>
+              <div className="rounded-xl bg-amber-100 p-3 text-sm text-amber-800 space-y-1">
+                <p className="font-semibold">E-mail kon niet worden verzonden</p>
+                <p>Jouw resultaten zijn opgeslagen. We lossen het verzenden op — je kunt contact opnemen via <a href="mailto:roeland@uiterwaarden.com" className="underline">roeland@uiterwaarden.com</a>.</p>
+                {mailError && (
+                  <p className="mt-2 rounded bg-amber-200 px-2 py-1 font-mono text-xs break-all">
+                    EmailJS: {mailError}
+                  </p>
+                )}
+              </div>
             )}
           </section>
         )}
