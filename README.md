@@ -21,17 +21,24 @@ Open daarna [http://localhost:3000](http://localhost:3000).
 
 ## EmailJS configureren
 
-Vul in `app/page.tsx` de placeholders in:
+Gebruik environment variables i.p.v. hardcoded keys.
 
-- `YOUR_SERVICE_ID`
-- `YOUR_TEMPLATE_ID_USER`
-- `YOUR_TEMPLATE_ID_ADMIN`
-- `YOUR_PUBLIC_KEY`
-- `admin@example.com`
+1. Kopieer `.env.example` naar `.env.local`
+2. Vul de waarden in:
 
-Zolang deze placeholders niet zijn ingevuld, wordt de scan wel getoond en berekend, maar wordt e-mailverzending overgeslagen.
+- `NEXT_PUBLIC_EMAILJS_SERVICE_ID`
+- `NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_USER`
+- `NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_ADMIN`
+- `NEXT_PUBLIC_EMAILJS_PUBLIC_KEY`
+- `NEXT_PUBLIC_ADMIN_EMAIL`
+
+Voor EmailJS templates kun je direct deze HTML-bestanden gebruiken:
+
+- `docs/emailjs-user-result-template.html`
+- `docs/emailjs-admin-notification-template.html`
 
 ## Structuur
 
 - `app/page.tsx`: volledige scan-flow (welkom -> vragen -> lead -> resultaat)
 - `lib/scan-config.ts`: vragen, ankerteksten en kwadrantinformatie
+- `docs/*.html`: kopieerbare EmailJS template-opmaak

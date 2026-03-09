@@ -1,89 +1,29 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import emailjs from "@emailjs/browser";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  PolarAngleAxis,
-  PolarGrid,
-  PolarRadiusAxis,
-  Radar,
-  RadarChart,
-  ResponsiveContainer,
-} from "recharts";
-import { getAnchorForScore, quadrants, questions, type QuadrantId } from "@/lib/scan-config";
+import { getAnchorForScore, quadrants, questions } from "@/lib/scan-config";
 
-type Step = "welcome" | "questions" | "lead" | "results";
+type Step = "welcome" | "questions" | "lead";
 
 type Lead = {
   name: string;
   email: string;
 };
 
-const EMAILJS_SERVICE_ID = (process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "").trim();
-const EMAILJS_USER_TEMPLATE_ID = (process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_USER ?? "").trim();
-const EMAILJS_ADMIN_TEMPLATE_ID = (process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_ADMIN ?? "").trim();
-const EMAILJS_PUBLIC_KEY = (process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY ?? "").trim();
-const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "").trim();
-
-const isEmailJsConfigured = () =>
-  ![
-    EMAILJS_SERVICE_ID,
-    EMAILJS_USER_TEMPLATE_ID,
-    EMAILJS_ADMIN_TEMPLATE_ID,
-    EMAILJS_PUBLIC_KEY,
-    ADMIN_EMAIL,
-  ].some((value) => !value || value.includes("YOUR_") || value.includes("example.com"));
-
 export default function Home() {
+  const router = useRouter();
   const [step, setStep] = useState<Step>("welcome");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<number[]>(Array.from({ length: questions.length }, () => 5));
   const [lead, setLead] = useState<Lead>({ name: "", email: "" });
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
-  const [mailStatus, setMailStatus] = useState<"idle" | "sent" | "failed">("idle");
-  const [mailError, setMailError] = useState<string>("");
 
   const currentQuestion = questions[currentQuestionIndex];
   const currentScore = answers[currentQuestionIndex];
   const currentAnchor = getAnchorForScore(currentScore, currentQuestion.anchors);
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-
-  const quadrantScores = useMemo(() => {
-    const totals = new Map<QuadrantId, { sum: number; count: number }>();
-    quadrants.forEach((quadrant) => totals.set(quadrant.id, { sum: 0, count: 0 }));
-
-    questions.forEach((question, index) => {
-      const score = answers[index];
-      const existing = totals.get(question.quadrantId);
-      if (!existing) return;
-      totals.set(question.quadrantId, { sum: existing.sum + score, count: existing.count + 1 });
-    });
-
-    return quadrants.map((quadrant) => {
-      const result = totals.get(quadrant.id);
-      const average = result && result.count > 0 ? result.sum / result.count : 0;
-      return {
-        quadrantId: quadrant.id,
-        name: quadrant.name,
-        score: Number(average.toFixed(1)),
-      };
-    });
-  }, [answers]);
-
-  const highestScoringQuadrant = useMemo(() => {
-    return quadrantScores.reduce((highest, current) => (current.score > highest.score ? current : highest));
-  }, [quadrantScores]);
-
-  const highestQuadrantMeta = quadrants.find(
-    (quadrant) => quadrant.id === highestScoringQuadrant.quadrantId,
-  );
-
-  const answerSummary = questions
-    .map((question, index) => `${question.id} (${question.title}): ${answers[index]}`)
-    .join("\n");
-
-  const quadrantSummary = quadrantScores.map((item) => `${item.name}: ${item.score}`).join("\n");
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex === questions.length - 1) {
@@ -100,56 +40,32 @@ export default function Home() {
   const handleLeadSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmittingLead(true);
-    setMailStatus("idle");
-    setMailError("");
 
-    try {
-      if (isEmailJsConfigured()) {
-        await emailjs.send(
-          EMAILJS_SERVICE_ID,
-          EMAILJS_USER_TEMPLATE_ID,
-          {
-            name: lead.name,
-            email: lead.email,
-            quadrant_scores: quadrantSummary,
-            answers: answerSummary,
-            strongest_quadrant: highestQuadrantMeta?.name ?? "",
-          },
-          { publicKey: EMAILJS_PUBLIC_KEY },
-        );
+    const samenwerking = answers.slice(0, 3);
+    const praktijk = answers.slice(3, 6);
+    const strategie = answers.slice(6, 9);
+    const missie = answers.slice(9, 12);
 
-        await emailjs.send(
-          EMAILJS_SERVICE_ID,
-          EMAILJS_ADMIN_TEMPLATE_ID,
-          {
-            participant_name: lead.name,
-            participant_email: lead.email,
-            quadrant_scores: quadrantSummary,
-            answers: answerSummary,
-            strongest_quadrant: highestQuadrantMeta?.name ?? "",
-            admin_email: ADMIN_EMAIL,
-          },
-          { publicKey: EMAILJS_PUBLIC_KEY },
-        );
+    const avg = (values: number[]) =>
+      values.length ? Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(1)) : 0;
 
-        setMailStatus("sent");
-      } else {
-        console.warn("EmailJS placeholders are not configured yet.");
-      }
-    } catch (error) {
-      console.error("Error sending EmailJS messages", error);
-      const msg =
-        error instanceof Error
-          ? error.message
-          : typeof error === "object" && error !== null && "text" in error
-            ? String((error as { text: string }).text)
-            : String(error);
-      setMailError(msg);
-      setMailStatus("failed");
-    } finally {
-      setIsSubmittingLead(false);
-      setStep("results");
-    }
+    const scores = {
+      samenwerking: { label: "Samenwerking", score: avg(samenwerking), vragen: samenwerking },
+      praktijk: { label: "Praktijk", score: avg(praktijk), vragen: praktijk },
+      strategie: { label: "Strategie & Basis op orde", score: avg(strategie), vragen: strategie },
+      missie: { label: "Missie & Zingeving", score: avg(missie), vragen: missie },
+    };
+
+    const payload = encodeURIComponent(
+      JSON.stringify({
+        naam: lead.name,
+        email: lead.email,
+        scores,
+      }),
+    );
+
+    setIsSubmittingLead(false);
+    router.push(`/resultaat?data=${payload}`);
   };
 
   return (
@@ -314,67 +230,6 @@ export default function Home() {
           </section>
         )}
 
-        {step === "results" && (
-          <section className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold text-slate-900">Dank je wel, {lead.name || "deelnemer"}!</h2>
-              <p className="text-slate-600">
-                Hieronder zie je direct jouw teamprofiel op de 4 kwadranten van de Positieve Organisatie Scan.
-              </p>
-            </div>
-
-            <div className="h-80 w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-5">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={quadrantScores}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="name" tick={{ fontSize: 12, fill: "#334155" }} />
-                  <PolarRadiusAxis angle={90} domain={[0, 10]} tickCount={6} tick={{ fontSize: 11 }} />
-                  <Radar
-                    dataKey="score"
-                    stroke="#0284c7"
-                    fill="#0ea5e9"
-                    fillOpacity={0.28}
-                    strokeWidth={2}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-              <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-                Hoogst scorende kwadrant
-              </p>
-              <p className="mt-1 text-xl font-semibold text-emerald-900">{highestQuadrantMeta?.name}</p>
-              <p className="mt-2 text-sm leading-relaxed text-emerald-800">{highestQuadrantMeta?.feedback}</p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {quadrantScores.map((item) => (
-                <div key={item.quadrantId} className="rounded-xl border border-slate-200 bg-white p-3">
-                  <p className="text-sm font-medium text-slate-700">{item.name}</p>
-                  <p className="text-2xl font-bold text-slate-900">{item.score}</p>
-                </div>
-              ))}
-            </div>
-
-            {mailStatus === "sent" && (
-              <p className="rounded-xl bg-sky-100 p-3 text-sm text-sky-800">
-                De resultaten zijn via EmailJS klaargezet en succesvol verzonden.
-              </p>
-            )}
-            {mailStatus === "failed" && (
-              <div className="rounded-xl bg-amber-100 p-3 text-sm text-amber-800 space-y-1">
-                <p className="font-semibold">E-mail kon niet worden verzonden</p>
-                <p>Jouw resultaten zijn opgeslagen. We lossen het verzenden op — je kunt contact opnemen via <a href="mailto:roeland@uiterwaarden.com" className="underline">roeland@uiterwaarden.com</a>.</p>
-                {mailError && (
-                  <p className="mt-2 rounded bg-amber-200 px-2 py-1 font-mono text-xs break-all">
-                    EmailJS: {mailError}
-                  </p>
-                )}
-              </div>
-            )}
-          </section>
-        )}
       </main>
     </div>
   );
