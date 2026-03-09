@@ -60,6 +60,21 @@ const kwadrantVraagStart = {
   missie: 10,
 };
 
+const vraagTitels = [
+  "Kwetsbaarheid",
+  "Collectieve draagkracht",
+  "Energie & plezier",
+  "Spelregels & insluiting",
+  "Vergaderdynamiek",
+  "Ruimte vs. controle",
+  "Heldere kaders",
+  "Duidelijke rolverdeling",
+  "Gezamenlijk eigenaarschap",
+  "Hoger doel",
+  "Sterke kanten benutten",
+  "Blik naar buiten",
+];
+
 function gemiddelde(scores) {
   return Object.values(scores).reduce((s, k) => s + k.score, 0) / Object.keys(scores).length;
 }
@@ -281,9 +296,9 @@ function RapportSectie({ kwadrant, data }) {
 }
 
 /**
- * @param {{ scores?: ResultaatScores | null, naam?: string, email?: string }} props
+ * @param {{ scores?: ResultaatScores | null, naam?: string, email?: string, answers?: number[] }} props
  */
-export default function ResultaatPagina({ scores = null, naam = "", email = "" }) {
+export default function ResultaatPagina({ scores = null, naam = "", email = "", answers = [] }) {
   const veiligeScores = scores ?? defaultScores;
   const [laag, setLaag] = useState(1);
   const [emailVerzonden, setEmailVerzonden] = useState(false);
@@ -303,6 +318,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "" }
     missie: veiligeScores.missie.score,
   });
   const { beste, runner1, runner2, zekerheid } = archetypeResultaat;
+  const archetypeTop3 = [beste, runner1, runner2];
 
   const bepaalArchetypeKleur = () => {
     const ideaal = beste?.ideaal ?? {};
@@ -320,6 +336,17 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "" }
       : zekerheid >= 40
         ? "Sterke match"
         : `Jullie zijn onderweg - je zit op de grens van ${beste.naam} en ${runner1.naam}`;
+  const laag1Samenvatting = `Topmatch: ${beste.naam}. Gemiddelde teamscore: ${gem.toFixed(1)} (${gemSl.label}).`;
+  const laag2Samenvatting = `Verdieping: sterkste kwadrant is ${veiligeScores[sterk[0]].label}; groeikans ligt bij ${veiligeScores[zwak[0]].label}.`;
+  const laag3Samenvatting = `Gespreksfocus: verbind ${runner1.naam} en ${runner2.naam} met concrete teamafspraken voor de komende 2 weken.`;
+  const antwoordenSamenvatting = answers.length
+    ? answers.map((score, index) => `V${index + 1} (${vraagTitels[index] ?? "Vraag"}): ${score}`).join("\n")
+    : [
+        ...veiligeScores.samenwerking.vragen.map((v, i) => `V${i + 1}: ${v}`),
+        ...veiligeScores.praktijk.vragen.map((v, i) => `V${i + 4}: ${v}`),
+        ...veiligeScores.strategie.vragen.map((v, i) => `V${i + 7}: ${v}`),
+        ...veiligeScores.missie.vragen.map((v, i) => `V${i + 10}: ${v}`),
+      ].join("\n");
 
   async function handleRapportAanvragen() {
     setMailError("");
@@ -339,6 +366,19 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "" }
           email: emailInput,
           quadrant_scores: quadrantSummary,
           strongest_quadrant: veiligeScores[sterk[0]].label,
+            answers: antwoordenSamenvatting,
+            archetype_top1_naam: archetypeTop3[0].naam,
+            archetype_top1_tagline: archetypeTop3[0].tagline,
+            archetype_top1_risico: archetypeTop3[0].risico,
+            archetype_top2_naam: archetypeTop3[1].naam,
+            archetype_top2_tagline: archetypeTop3[1].tagline,
+            archetype_top3_naam: archetypeTop3[2].naam,
+            archetype_top3_tagline: archetypeTop3[2].tagline,
+            archetype_zekerheid: `${zekerheid}%`,
+            archetype_zekerheid_label: zekerheidTekst,
+            laag1_samenvatting: laag1Samenvatting,
+            laag2_samenvatting: laag2Samenvatting,
+            laag3_samenvatting: laag3Samenvatting,
         },
         { publicKey: EMAILJS_PUBLIC_KEY },
       );
@@ -352,6 +392,14 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "" }
           quadrant_scores: quadrantSummary,
           strongest_quadrant: veiligeScores[sterk[0]].label,
           admin_email: ADMIN_EMAIL,
+          answers: antwoordenSamenvatting,
+          archetype_top1_naam: archetypeTop3[0].naam,
+          archetype_top2_naam: archetypeTop3[1].naam,
+          archetype_top3_naam: archetypeTop3[2].naam,
+          archetype_zekerheid: `${zekerheid}%`,
+          laag1_samenvatting: laag1Samenvatting,
+          laag2_samenvatting: laag2Samenvatting,
+          laag3_samenvatting: laag3Samenvatting,
         },
         { publicKey: EMAILJS_PUBLIC_KEY },
       );
@@ -404,6 +452,11 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "" }
                 Runners-up: {runner1.naam} · {runner2.naam}
               </p>
             )}
+            <div className="mt-4 rounded-xl bg-white/80 border border-white px-3 py-2">
+              <p className="text-xs text-gray-600">
+                Top 3 archetypen: <strong>1.</strong> {beste.naam} · <strong>2.</strong> {runner1.naam} · <strong>3.</strong> {runner2.naam}
+              </p>
+            </div>
           </div>
 
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-5">
@@ -488,6 +541,20 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "" }
               <RapportSectie key={key} kwadrant={key} data={veiligeScores[key]} />
             ))}
 
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 mb-6">
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Archetype-verdieping</p>
+              <h3 className="text-xl font-bold text-gray-800" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
+                Top 2 en 3 als ontwikkelrichting
+              </h3>
+              <p className="text-sm text-gray-600 mt-2">
+                Naast jullie hoofdprofiel <strong>{beste.naam}</strong> wijzen de volgende archetypen op kansrijke nuances in jullie ontwikkeling.
+              </p>
+              <ul className="mt-3 space-y-2 text-sm text-gray-700">
+                <li><strong>2. {runner1.naam}:</strong> {runner1.tagline}</li>
+                <li><strong>3. {runner2.naam}:</strong> {runner2.tagline}</li>
+              </ul>
+            </div>
+
             <div className="rounded-3xl overflow-hidden shadow-sm border border-gray-100 mb-6" style={{ background: `linear-gradient(135deg, ${brand.roze}, white)` }}>
               <div className="p-6">
                 <h3 className="font-black text-gray-800 text-lg mb-2" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
@@ -546,6 +613,9 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "" }
               Plan jouw Scan-reflectie →
             </a>
             <p className="text-center text-gray-400 text-xs mt-3">Kies zelf een moment · Gratis · 20 minuten</p>
+            <p className="text-center text-xs text-gray-500 mt-3">
+              Voor dit gesprek nemen we ook jullie archetype-rangorde mee: {runner1.naam} en {runner2.naam}.
+            </p>
           </div>
         )}
       </main>

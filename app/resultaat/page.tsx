@@ -14,7 +14,7 @@ type ResultaatRouteProps = {
 export default async function ResultaatRoute({ searchParams }: ResultaatRouteProps) {
   const params = await searchParams;
   const encoded = params?.data;
-  let payload: { naam?: string; email?: string; scores?: ScorePayload } = {};
+  let payload: { naam?: string; email?: string; scores?: ScorePayload; answers?: number[] } = {};
 
   if (encoded) {
     try {
@@ -28,6 +28,7 @@ export default async function ResultaatRoute({ searchParams }: ResultaatRoutePro
       scores={payload.scores ?? null}
       naam={payload.naam ?? ""}
       email={payload.email ?? ""}
+      answers={payload.answers ?? []}
     />
   );
 }

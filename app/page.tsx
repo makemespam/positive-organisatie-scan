@@ -69,6 +69,7 @@ export default function Home() {
         naam: lead.name,
         email: lead.email,
         scores,
+        answers,
       }),
     );
 
