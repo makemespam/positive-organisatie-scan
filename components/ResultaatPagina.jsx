@@ -76,6 +76,21 @@ const vraagTitels = [
   "Blik naar buiten",
 ];
 
+const vraagLabels = {
+  V1: "Kwetsbaarheid",
+  V2: "Collectieve draagkracht",
+  V3: "Energie & plezier",
+  V4: "Spelregels & insluiting",
+  V5: "Vergaderdynamiek",
+  V6: "Sturing & ruimte",
+  V7: "Heldere kaders",
+  V8: "Rolverdeling",
+  V9: "Eigenaarschap",
+  V10: "Hoger doel",
+  V11: "Sterke kanten",
+  V12: "Blik naar buiten",
+};
+
 const archetypeTips = {
   positieve_organisatie: {
     titel: "ReVlectie",
@@ -182,11 +197,11 @@ function verrassingKwadrant(scores) {
 }
 
 function scoreLabel(score) {
-  if (score >= 8.5) return { label: "Uitstekend", kleur: brand.groen };
-  if (score >= 7) return { label: "Sterk", kleur: brand.groen };
-  if (score >= 5.5) return { label: "Groeiend", kleur: brand.oranje };
-  if (score >= 4) return { label: "Aandacht", kleur: brand.donkerrood };
-  return { label: "Prioriteit", kleur: brand.rood };
+  if (score >= 8.5) return { label: "Sterk", color: "#006d82", icon: "✓" };
+  if (score >= 7) return { label: "Goed", color: "#006d82" };
+  if (score >= 5) return { label: "In ontwikkeling", color: "#f79648" };
+  if (score >= 3) return { label: "Vraagt aandacht", color: "#c86059" };
+  return { label: "Urgent", color: "#ee6556" };
 }
 
 const tips = {
@@ -212,7 +227,7 @@ const tips = {
   },
 };
 
-const praktijkrichtingPerVraag = {
+const watSpeeltPerVraag = {
   1: {
     laag: "Kwetsbaarheid is hier nog een uitdaging, maar tegelijk een kansrijk startpunt voor groei en meer psychologische veiligheid.",
     midden: "Kwetsbaarheid lijkt hier een belangrijk ankerpunt: fouten en twijfels worden steeds vaker bespreekbaar.",
@@ -275,16 +290,25 @@ const praktijkrichtingPerVraag = {
   },
 };
 
-function praktijkrichtingVoorKwadrant(kwadrant, vragen) {
-  const start = kwadrantVraagStart[kwadrant];
-  const besteScore = Math.max(...vragen);
-  const indexBinnenKwadrant = vragen.findIndex((v) => v === besteScore);
-  const vraagNummer = start + Math.max(indexBinnenKwadrant, 0);
-  const varianten = praktijkrichtingPerVraag[vraagNummer];
-  if (!varianten) return "Dit thema is kansrijk om verder te versterken in jullie volgende teamweek.";
-  if (besteScore <= 4) return varianten.laag;
-  if (besteScore <= 7) return varianten.midden;
+function contextZin(varianten, kwadrantScore) {
+  if (kwadrantScore <= 4) return varianten.laag;
+  if (kwadrantScore <= 7) return varianten.midden;
   return varianten.hoog;
+}
+
+function vraagNummerMetLaagsteScore(kwadrant, vragen) {
+  const start = kwadrantVraagStart[kwadrant];
+  const laagsteScore = Math.min(...vragen);
+  const indexBinnenKwadrant = vragen.findIndex((v) => v === laagsteScore);
+  const vraagNummer = start + Math.max(indexBinnenKwadrant, 0);
+  return { vraagNummer, laagsteScore };
+}
+
+function watSpeeltHierVoorKwadrant(kwadrant, vragen, kwadrantScore) {
+  const { vraagNummer } = vraagNummerMetLaagsteScore(kwadrant, vragen);
+  const varianten = watSpeeltPerVraag[vraagNummer];
+  if (!varianten) return "Dit thema is kansrijk om verder te versterken in jullie volgende teamweek.";
+  return contextZin(varianten, kwadrantScore);
 }
 
 function QuinnWiel({ scores, size = 280, animated = true }) {
@@ -331,9 +355,9 @@ function QuinnWiel({ scores, size = 280, animated = true }) {
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle cx={cx} cy={cy} r={maxR} fill="rgba(140, 180, 172, 0.28)" />
-      <circle cx={cx} cy={cy} r={maxR * 0.6} fill="rgba(255, 236, 179, 0.34)" />
-      <circle cx={cx} cy={cy} r={maxR * 0.3} fill="rgba(255, 182, 193, 0.34)" />
+      <circle cx={cx} cy={cy} r={maxR} fill="rgba(140, 180, 172, 0.15)" />
+      <circle cx={cx} cy={cy} r={maxR * 0.7} fill="rgba(248, 193, 88, 0.12)" />
+      <circle cx={cx} cy={cy} r={maxR * 0.4} fill="rgba(238, 101, 86, 0.12)" />
       {gridRadii.map((f, i) => (
         <circle key={i} cx={cx} cy={cy} r={maxR * f} fill="none" stroke="#94a3b8" strokeWidth={1.2} strokeDasharray="3 2" />
       ))}
@@ -405,7 +429,9 @@ function RapportSectie({ kwadrant, data }) {
   const licht = kwadrantLicht[kwadrant];
   const tip = tips[kwadrant];
   const sl = scoreLabel(data.score);
-  const praktijkrichting = praktijkrichtingVoorKwadrant(kwadrant, data.vragen);
+  const watSpeeltHier = watSpeeltHierVoorKwadrant(kwadrant, data.vragen, data.score);
+  const { vraagNummer, laagsteScore } = vraagNummerMetLaagsteScore(kwadrant, data.vragen);
+  const laagsteVraagLabel = vraagLabels[`V${vraagNummer}`] ?? `Vraag ${vraagNummer}`;
 
   return (
     <div className="mb-8 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
@@ -430,7 +456,7 @@ function RapportSectie({ kwadrant, data }) {
           <div className="space-y-2">
             {data.vragen.map((v, i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="text-xs text-gray-400 w-16 flex-shrink-0">V{kwadrantVraagStart[kwadrant] + i}</span>
+                <span className="text-xs text-gray-400 w-44 flex-shrink-0">{vraagLabels[`V${kwadrantVraagStart[kwadrant] + i}`]}</span>
                 <div className="flex-1">
                   <ScoreBalk score={v} kleur={kleur} />
                 </div>
@@ -454,8 +480,13 @@ function RapportSectie({ kwadrant, data }) {
             →
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Wat gaat er al goed</div>
-            <p className="text-gray-700 text-sm font-medium">{praktijkrichting}</p>
+            <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Wat speelt hier</div>
+            <p className="text-gray-700 text-sm font-medium">{watSpeeltHier}</p>
+            {data.score < 7 && (
+              <p className="mt-2 text-xs text-gray-500">
+                De laagste score binnen dit kwadrant: {laagsteVraagLabel} ({laagsteScore})
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -471,6 +502,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
   const [emailVerzonden, setEmailVerzonden] = useState(false);
   const [emailInput, setEmailInput] = useState(email ?? "");
   const [mailError, setMailError] = useState("");
+  const [toonBoekFallback, setToonBoekFallback] = useState(false);
 
   const sterk = sterksteKwadrant(veiligeScores);
   const zwak = zwaksteKwadrant(veiligeScores);
@@ -495,16 +527,16 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
       ? `https://positive-organisatie-scan.vercel.app/rapport?v=${encodeAnswersToV(answers)}&n=${encodeURIComponent(naam)}&e=${encodeURIComponent(emailInput)}`
       : "https://positive-organisatie-scan.vercel.app/";
 
-  const bepaalArchetypeKleur = () => {
-    const ideaal = beste?.ideaal ?? {};
-    const top = Object.entries(ideaal).sort((a, b) => b[1] - a[1])[0]?.[0];
-    if (top === "s") return { kleur: brand.groen, licht: kwadrantLicht.samenwerking };
-    if (top === "p") return { kleur: brand.blauw, licht: kwadrantLicht.praktijk };
-    if (top === "st") return { kleur: brand.donkerrood, licht: kwadrantLicht.strategie };
-    return { kleur: brand.oranje, licht: kwadrantLicht.missie };
-  };
-
-  const archetypeStijl = bepaalArchetypeKleur();
+  const dominanteKleur =
+    beste.dominantKwadrant === "s"
+      ? "#006d82"
+      : beste.dominantKwadrant === "p"
+        ? "#314a7b"
+        : beste.dominantKwadrant === "st"
+          ? "#c86059"
+          : beste.dominantKwadrant === "m"
+            ? "#f79648"
+            : "#8cb4ac";
   const zekerheidTekst =
     zekerheid > 70
       ? "Duidelijke match"
@@ -518,12 +550,12 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
     ? "Let op: alle 12 antwoorden staan op 5. Dit lijkt op een standaardinvulling en geeft mogelijk geen betrouwbaar teambeeld."
     : "";
   const antwoordenSamenvatting = answers.length
-    ? answers.map((score, index) => `V${index + 1} (${vraagTitels[index] ?? "Vraag"}): ${score}`).join("\n")
+    ? answers.map((score, index) => `${vraagLabels[`V${index + 1}`] ?? vraagTitels[index] ?? "Vraag"}: ${score}`).join("\n")
     : [
-        ...veiligeScores.samenwerking.vragen.map((v, i) => `V${i + 1}: ${v}`),
-        ...veiligeScores.praktijk.vragen.map((v, i) => `V${i + 4}: ${v}`),
-        ...veiligeScores.strategie.vragen.map((v, i) => `V${i + 7}: ${v}`),
-        ...veiligeScores.missie.vragen.map((v, i) => `V${i + 10}: ${v}`),
+        ...veiligeScores.samenwerking.vragen.map((v, i) => `${vraagLabels[`V${i + 1}`]}: ${v}`),
+        ...veiligeScores.praktijk.vragen.map((v, i) => `${vraagLabels[`V${i + 4}`]}: ${v}`),
+        ...veiligeScores.strategie.vragen.map((v, i) => `${vraagLabels[`V${i + 7}`]}: ${v}`),
+        ...veiligeScores.missie.vragen.map((v, i) => `${vraagLabels[`V${i + 10}`]}: ${v}`),
       ].join("\n");
 
   async function handleRapportAanvragen() {
@@ -534,12 +566,14 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
       `${veiligeScores.strategie.label}: ${veiligeScores.strategie.score.toFixed(1)}`,
       `${veiligeScores.missie.label}: ${veiligeScores.missie.score.toFixed(1)}`,
     ].join("\n");
-    const rapportVolgorde = [zwak[0], ...Object.keys(veiligeScores).filter((k) => k !== zwak[0])];
+    const rapportVolgorde = Object.keys(veiligeScores).sort((a, b) => veiligeScores[a].score - veiligeScores[b].score);
     const kwadrantRapportVolledig = rapportVolgorde
       .map((key) => {
         const data = veiligeScores[key];
-        const praktijkrichting = praktijkrichtingVoorKwadrant(key, data.vragen);
-        return `${data.label}\n- Inzicht: ${tips[key].lang}\n- Wat gaat er al goed: ${praktijkrichting}`;
+        const watSpeeltHier = watSpeeltHierVoorKwadrant(key, data.vragen, data.score);
+        const { vraagNummer, laagsteScore } = vraagNummerMetLaagsteScore(key, data.vragen);
+        const laagsteVraagLabel = vraagLabels[`V${vraagNummer}`] ?? `Vraag ${vraagNummer}`;
+        return `${data.label}\n- Inzicht: ${tips[key].lang}\n- Wat speelt hier: ${watSpeeltHier}${data.score < 7 ? `\n- De laagste score binnen dit kwadrant: ${laagsteVraagLabel} (${laagsteScore})` : ""}`;
       })
       .join("\n\n");
 
@@ -581,7 +615,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
           signaal_kracht: signaalKracht,
           signaal_groeikans: signaalGroeikans,
           signaal_opvallend: signaalOpvallend,
-          sparring_link: "mailto:team@uiterwaarden.com?subject=Aanvraag%20Sparring%20Sessie%20naar%20aanleiding%20van%20Scan",
+          sparring_link: "mailto:team@uiterwaarden.com?subject=Scan-reflectie%20aanvragen&body=Hoi%2C%20ik%20wil%20graag%20een%20sparring%20sessie%20inplannen%20naar%20aanleiding%20van%20mijn%20Positieve%20Organisatie%20Scan.",
         },
         { publicKey: EMAILJS_PUBLIC_KEY },
       );
@@ -628,7 +662,12 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
           <div className="flex items-center gap-2">
             <Image src="/logo.png" alt="Uiterwaarden" width={120} height={40} className="object-contain" />
           </div>
-          <div className="text-xs text-gray-400">Positieve Organisatie Scan</div>
+          <div className="flex items-center gap-4">
+            <a href="/uitleg" className="text-xs text-gray-500 hover:text-gray-700 transition-colors">
+              Hoe werkt de scan?
+            </a>
+            <div className="text-xs text-gray-400">Positieve Organisatie Scan</div>
+          </div>
         </div>
       </header>
 
@@ -644,32 +683,34 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
             <p className="text-gray-500 text-sm">Momentopname van de afgelopen week · {new Date().toLocaleDateString("nl-NL", { day: "numeric", month: "long" })}</p>
           </div>
 
-          <div className="rounded-3xl border p-5 mb-5" style={{ borderColor: archetypeStijl.kleur, background: archetypeStijl.licht }}>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: archetypeStijl.kleur }}>
+          <div className="rounded-3xl p-6 mb-5" style={{ background: dominanteKleur }}>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] mb-2 text-white/80">
               Jouw team past het meest bij
             </p>
-            <h2 className="text-3xl font-bold text-gray-800 leading-tight" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
+            <h2 className="text-[38px] font-bold text-white leading-tight" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
               {beste.naam}
             </h2>
-            <p className="mt-2 text-sm italic text-gray-700">{beste.tagline}</p>
-            <p className="mt-2 text-sm text-gray-700">{beste.omschrijving}</p>
-            <p className="mt-2 text-xs text-gray-500">{beste.risico}</p>
-            <div className="mt-4 inline-flex rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "white", color: archetypeStijl.kleur }}>
+            <p className="mt-2 text-[18px] italic text-white/90">{beste.tagline}</p>
+            <div className="h-4" />
+            <p className="text-[15px] text-white/95 leading-relaxed">{beste.omschrijving}</p>
+            <p className="mt-3 text-sm text-white/90">
+              <strong>Valkuil:</strong> {beste.risico}
+            </p>
+            <div className="h-4" />
+            <div className="inline-flex rounded-full bg-white/20 border border-white/30 px-3 py-1.5 text-xs text-white">
+              Dit profiel herkennen we vaak bij: {beste.herkenbaar}
+            </div>
+            <div className="mt-4 inline-flex rounded-full px-3 py-1 text-xs font-semibold bg-white text-gray-800">
               {zekerheidTekst}
             </div>
             {archetypeResultaat.isDefaultIngevuld && (
-              <p className="mt-3 text-xs text-amber-700">
+              <p className="mt-3 text-xs text-amber-100">
                 Let op: alle 12 antwoorden staan op 5. Dit lijkt op een standaardinvulling en geeft mogelijk geen betrouwbaar teambeeld.
               </p>
             )}
-            {zekerheid < 60 && (
-              <p className="mt-3 text-xs text-gray-500">
-                Runners-up: {runner1.naam} · {runner2.naam}
-              </p>
-            )}
-            <div className="mt-4 rounded-xl bg-white/80 border border-white px-3 py-2">
-              <p className="text-xs text-gray-600">
-                Top 3 archetypen: <strong>1.</strong> {beste.naam} · <strong>2.</strong> {runner1.naam} · <strong>3.</strong> {runner2.naam}
+            <div className="mt-4 rounded-xl bg-white/15 border border-white/30 px-3 py-2">
+              <p className="text-xs text-white/90">
+                Top 3 passende organisatietypen: <strong>1.</strong> {beste.naam} · <strong>2.</strong> {runner1.naam} · <strong>3.</strong> {runner2.naam}
               </p>
             </div>
           </div>
@@ -685,19 +726,26 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
                   {actieveArchetypeTip.titel}
                 </h3>
                 <p className="mt-2 text-sm text-gray-700">{actieveArchetypeTip.tip}</p>
-                <p className="mt-3 text-xs italic text-gray-500">Bron: {actieveArchetypeTip.bron}</p>
+                <p className="mt-3 text-xs italic text-gray-500">Uit: Positief Leiderschap — 25 Krachtige Acties · {actieveArchetypeTip.bron}</p>
                 <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
                   Je ontvangt dit e-book gratis bij de bespreking van jouw scan.
                 </div>
               </div>
               <div className="hidden sm:block flex-shrink-0">
-                <Image
-                  src="/voorkant-ebook-25-tips-positief-leiderschap.png"
-                  alt="Cover van 25 Krachtige Acties voor Positief Leiderschap"
-                  width={96}
-                  height={140}
-                  className="rounded-md border border-amber-200 object-cover shadow-sm"
-                />
+                {toonBoekFallback ? (
+                  <div className="w-24 h-36 rounded-md border border-amber-200 shadow-sm bg-[#006d82] text-white text-xs font-semibold flex items-center justify-center text-center px-2">
+                    Positief Leiderschap
+                  </div>
+                ) : (
+                  <Image
+                    src="/images/boekje.png"
+                    alt="Cover van 25 Krachtige Acties voor Positief Leiderschap"
+                    width={96}
+                    height={140}
+                    className="rounded-md border border-amber-200 object-cover shadow-sm"
+                    onError={() => setToonBoekFallback(true)}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -706,10 +754,10 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
             <div className="flex flex-col items-center">
               <QuinnWiel scores={veiligeScores} size={280} animated />
               <div className="mt-4 text-center">
-                <div className="text-5xl font-black" style={{ color: gemSl.kleur, fontFamily: "'Alegreya Sans', Georgia, serif" }}>
+                <div className="text-5xl font-black" style={{ color: gemSl.color, fontFamily: "'Alegreya Sans', Georgia, serif" }}>
                   {gem.toFixed(1)}
                 </div>
-                <div className="text-sm font-semibold mt-1" style={{ color: gemSl.kleur }}>
+                <div className="text-sm font-semibold mt-1" style={{ color: gemSl.color }}>
                   {gemSl.label}
                 </div>
                 <div className="text-gray-400 text-xs mt-1">gemiddelde over alle kwadranten</div>
@@ -729,7 +777,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
                       <span className="text-sm font-semibold text-gray-700">{data.label}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: kwadrantLicht[key], color: kleur }}>
-                          {sl.label}
+                          {sl.icon ? `${sl.icon} ${sl.label}` : sl.label}
                         </span>
                         <span className="text-sm font-black" style={{ color: kleur }}>
                           {data.score.toFixed(1)}
@@ -745,7 +793,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
 
           <div className="space-y-3 mb-6">
             <SignaalKaart type="Jullie kracht" titel={veiligeScores[sterk[0]].label} tekst={tips[sterk[0]].kort} kleur={kwadrantKleuren[sterk[0]]} licht={kwadrantLicht[sterk[0]]} icon="✦" />
-            <SignaalKaart type="Groeikans deze week" titel={veiligeScores[zwak[0]].label} tekst={tips[zwak[0]].kort} kleur={kwadrantKleuren[zwak[0]]} licht={kwadrantLicht[zwak[0]]} icon="↗" />
+            <SignaalKaart type="Groeikans" titel={veiligeScores[zwak[0]].label} tekst={tips[zwak[0]].kort} kleur={kwadrantKleuren[zwak[0]]} licht={kwadrantLicht[zwak[0]]} icon="↗" />
             <SignaalKaart
               type="Opvallend signaal"
               titel={veiligeScores[verr[0]].label}
@@ -758,7 +806,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
 
           <div className="bg-gray-50 rounded-2xl p-4 mb-6 text-center border border-gray-100">
             <p className="text-gray-500 text-xs leading-relaxed">
-              <span className="font-semibold text-gray-700">Een 10 is niet het doel.</span> Een uitgebalanceerd team floreert.
+              <span className="font-semibold text-gray-700">Een 10 is niet het doel.</span> Een gebalanceerd team floreert.
             </p>
           </div>
         </div>
@@ -770,47 +818,54 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
-          {[zwak[0], ...Object.keys(veiligeScores).filter((k) => k !== zwak[0])].map((key) => (
+          {Object.keys(veiligeScores).sort((a, b) => veiligeScores[a].score - veiligeScores[b].score).map((key) => (
             <RapportSectie key={key} kwadrant={key} data={veiligeScores[key]} />
           ))}
 
           <div className="rounded-2xl border border-gray-200 bg-white p-5 mb-6">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Archetype-verdieping</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Alternatieve profielen</p>
             <h3 className="text-xl font-bold text-gray-800" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
-              Top 2 en 3 als ontwikkelrichting
+              Top 2 en 3 passende types bij jouw scan
             </h3>
             <p className="text-sm text-gray-600 mt-2">
-              Naast jullie hoofdprofiel <strong>{beste.naam}</strong> wijzen de volgende archetypen op kansrijke nuances in jullie ontwikkeling.
+              Naast jullie hoofdprofiel <strong>{beste.naam}</strong> zijn er twee andere typeringen waar jullie team zich mogelijk ook in herkent.
             </p>
-            <ul className="mt-3 space-y-2 text-sm text-gray-700">
-              <li><strong>2. {runner1.naam}:</strong> {runner1.tagline}</li>
-              <li><strong>3. {runner2.naam}:</strong> {runner2.tagline}</li>
-            </ul>
+            <div className="mt-3 grid gap-3">
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-700">
+                <p><strong>2. {runner1.naam}</strong></p>
+                <p className="italic mt-1">{runner1.tagline}</p>
+              </div>
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-700">
+                <p><strong>3. {runner2.naam}</strong></p>
+                <p className="italic mt-1">{runner2.tagline}</p>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-gray-500">
+              Top 3 passende organisatietypen: 1. {beste.naam} · 2. {runner1.naam} · 3. {runner2.naam}
+            </p>
           </div>
 
-          <div className="rounded-2xl border border-orange-200 p-6 mb-6" style={{ background: "linear-gradient(135deg, #fff3ec, #fffaf5)" }}>
+          <div className="rounded-2xl p-6 mb-6" style={{ border: "2px solid #f79648", background: "rgba(247, 150, 72, 0.06)" }}>
             <p className="text-xs font-semibold uppercase tracking-widest text-orange-600 mb-2">Sparring</p>
             <h3 className="font-black text-gray-800 text-xl mb-2" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
               Sparren over jullie uitslag?
             </h3>
             <p className="text-sm text-gray-700 leading-relaxed">
-              Inbegrepen bij deze scan is een korte kennismaking / sparring sessie met een van onze coaches. - 20 minuten, geen agenda, geen verkooppraatje. We bekijken samen wat jullie profiel zegt en wat een zinvolle eerste stap zou zijn.
+              Inbegrepen bij deze scan: een korte kennismaking met een van onze coaches. 20 minuten, geen agenda, geen verkooppraatje. We bekijken samen wat jullie profiel zegt en wat een zinvolle eerste stap zou zijn.
             </p>
             <a
-              href="mailto:team@uiterwaarden.com?subject=Aanvraag%20Sparring%20Sessie%20naar%20aanleiding%20van%20Scan"
+              href="mailto:team@uiterwaarden.com?subject=Scan-reflectie%20aanvragen&body=Hoi%2C%20ik%20wil%20graag%20een%20sparring%20sessie%20inplannen%20naar%20aanleiding%20van%20mijn%20Positieve%20Organisatie%20Scan."
               className="inline-block mt-4 px-4 py-2 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity"
-              style={{ background: `linear-gradient(135deg, ${brand.oranje}, ${brand.donkerrood})` }}
+              style={{ background: "#f79648" }}
             >
-              Plan een sparring sessie
+              Plan een moment →
             </a>
           </div>
 
           <div className="rounded-3xl overflow-hidden shadow-sm border border-gray-100 mb-6" style={{ background: `linear-gradient(135deg, ${brand.roze}, white)` }}>
             <div className="p-6">
-              <h3 className="font-black text-gray-800 text-lg mb-2" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
-                Mail mijn rapport
-              </h3>
-              <p className="text-gray-600 text-sm mb-4 leading-relaxed">We sturen je resultaten direct naar je inbox.</p>
+              <h3 className="font-semibold text-gray-700 text-sm mb-1" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>Ontvang dit rapport in je mailbox</h3>
+              <p className="text-gray-600 text-xs mb-3 leading-relaxed">We sturen je resultaten direct naar je inbox.</p>
               {emailVerzonden ? (
                 <div className="rounded-xl p-4 text-center" style={{ background: kwadrantLicht.samenwerking }}>
                   <div className="text-2xl mb-1">✓</div>
