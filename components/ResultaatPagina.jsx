@@ -212,19 +212,67 @@ const tips = {
   },
 };
 
-const praktijkrichtingOpVraag = {
-  1: "Jullie blinken uit in kwetsbaarheid. Fouten mogen gemaakt en besproken worden, wat een enorme versneller is voor psychologische veiligheid en het lerend vermogen.",
-  2: "De collectieve draagkracht is een absolute sterkte. Als de druk oploopt, vangen jullie elkaar op en wordt de last samen gedragen.",
-  3: "Er zit veel positieve energie en plezier in dit team. Deze ontspannen connectie is de perfecte buffer tegen stress en werkdruk.",
-  4: "De spelregels zijn helder en nieuwkomers stappen soepel in. Dit zorgt voor een veilige, voorspelbare basis waar iedereen weet waar hij aan toe is.",
-  5: "Jullie overleggen zijn inclusief; iedereen voelt de ruimte om zich uit te spreken. Dit betekent dat jullie optimaal gebruik maken van alle aanwezige denkkracht.",
-  6: "Er is veel vertrouwen in het team. Jullie sturen op resultaat in plaats van micromanagement, wat zorgt voor een hoog gevoel van autonomie en werkplezier.",
-  7: "De kaders en doelen zijn kraakhelder. Iedereen weet precies wat succes betekent, waardoor jullie als team heel gericht meters kunnen maken.",
-  8: "De rolverdeling staat als een huis. Het is voor iedereen volkomen duidelijk wie wat oppakt, wat blinde vlekken en dubbel werk voorkomt.",
-  9: "Het eigenaarschap is breed verankerd. Het team leunt niet op een persoon, maar draait zelfstandig door en pakt verantwoordelijkheid.",
-  10: "Jullie werk voelt betekenisvol. Het team snapt en voelt de verbinding tussen de dagelijkse taken en de grotere, positieve missie van de organisatie.",
-  11: "Teamleden werken volop vanuit hun eigen kracht. Er is veel ruimte om unieke kwaliteiten op een eigen, passende manier in te zetten.",
-  12: "Jullie hebben een sterke blik naar buiten. Er is actief ruimte om te reflecteren op de omgeving en jullie rol daarin, waardoor jullie wendbaar blijven.",
+const praktijkrichtingPerVraag = {
+  1: {
+    laag: "Kwetsbaarheid is hier nog een uitdaging, maar tegelijk een kansrijk startpunt voor groei en meer psychologische veiligheid.",
+    midden: "Kwetsbaarheid lijkt hier een belangrijk ankerpunt: fouten en twijfels worden steeds vaker bespreekbaar.",
+    hoog: "Kwetsbaarheid is hier jullie sterkste punt: fouten mogen besproken worden en dat versterkt veiligheid en lerend vermogen.",
+  },
+  2: {
+    laag: "Collectieve draagkracht is nu nog kwetsbaar, maar juist daarom een kansrijk thema om als team samen op te bouwen.",
+    midden: "Collectieve draagkracht is hier een zichtbaar sterk punt: in drukke periodes lukt het vaker om elkaar op te vangen.",
+    hoog: "Collectieve draagkracht is hier jullie sterkste punt: bij drukte vangen jullie elkaar op en dragen jullie de last samen.",
+  },
+  3: {
+    laag: "Energie en plezier vragen aandacht, maar zijn kansrijk om bewust ruimte te geven in jullie teamritme.",
+    midden: "Energie en plezier zijn hier een sterk punt: er ontstaat regelmatig ontspanning en verbinding.",
+    hoog: "Energie en plezier zijn hier jullie sterkste punt: de positieve teamdynamiek vormt een stevige buffer tegen stress.",
+  },
+  4: {
+    laag: "Spelregels en insluiting zijn nog een uitdaging, maar vormen een kansrijk startpunt voor meer duidelijkheid en veiligheid.",
+    midden: "Spelregels en insluiting zijn hier een sterk punt: de basis is herkenbaar en helpt nieuwe mensen mee te doen.",
+    hoog: "Spelregels en insluiting zijn hier jullie sterkste punt: de basis is helder en nieuwkomers stappen soepel in.",
+  },
+  5: {
+    laag: "Vergaderdynamiek is nog een uitdaging, maar kansrijk om met kleine interventies meer stemmen aan tafel te krijgen.",
+    midden: "Vergaderdynamiek is hier een sterk punt: verschillende teamleden krijgen merkbaar ruimte om bij te dragen.",
+    hoog: "Vergaderdynamiek is hier jullie sterkste punt: overleggen zijn inclusief en benutten de aanwezige denkkracht optimaal.",
+  },
+  6: {
+    laag: "Ruimte en vertrouwen zijn nog een uitdaging, maar kansrijk om stap voor stap meer autonomie te versterken.",
+    midden: "Ruimte en vertrouwen zijn hier een sterk punt: er ontstaat vaker sturing op resultaat in plaats van controle op detail.",
+    hoog: "Ruimte en vertrouwen zijn hier jullie sterkste punt: jullie sturen op resultaat en dat vergroot autonomie en werkplezier.",
+  },
+  7: {
+    laag: "Kaders en doelen zijn nu nog een uitdaging, maar een kansrijk thema om mee te starten voor meer focus.",
+    midden: "Kaders en doelen zijn hier jullie sterkste punt: de richting is voldoende duidelijk om gericht stappen te zetten.",
+    hoog: "Kaders en doelen zijn glashelder, dat geeft een prachtige basis om als team doelgericht te versnellen.",
+  },
+  8: {
+    laag: "Rolverdeling is nu nog een uitdaging, maar een kansrijk startpunt om meer rust en voorspelbaarheid te brengen.",
+    midden: "Rolverdeling is hier jullie sterkste punt: verantwoordelijkheden zijn duidelijk genoeg om goed samen te werken.",
+    hoog: "Rolverdeling is hier glashelder: iedereen weet precies wie wat oppakt en dat voorkomt ruis en dubbel werk.",
+  },
+  9: {
+    laag: "Eigenaarschap op resultaat is nog een uitdaging, maar kansrijk om stap voor stap breder in het team te verankeren.",
+    midden: "Eigenaarschap op resultaat is hier een sterk punt: verantwoordelijkheid wordt al door meerdere mensen gedragen.",
+    hoog: "Eigenaarschap op resultaat is hier jullie sterkste punt: het team draait zelfstandig door en pakt breed verantwoordelijkheid.",
+  },
+  10: {
+    laag: "Betekenis en hoger doel zijn nog een uitdaging, maar juist kansrijk om nieuwe energie in het dagelijkse werk te brengen.",
+    midden: "Hoger doel is hier een sterk punt: het team voelt in toenemende mate de link tussen taken en betekenis.",
+    hoog: "Hoger doel is hier jullie sterkste punt: het werk voelt betekenisvol en duidelijk verbonden aan de grotere missie.",
+  },
+  11: {
+    laag: "Werken vanuit sterke kanten is nog een uitdaging, maar een kansrijk vertrekpunt om meer energie los te maken.",
+    midden: "Sterke kanten benutten is hier een sterk punt: er is al ruimte om kwaliteiten passend in te zetten.",
+    hoog: "Sterke kanten benutten is hier jullie sterkste punt: teamleden werken zichtbaar vanuit hun eigen kracht.",
+  },
+  12: {
+    laag: "Blik naar buiten is nog een uitdaging, maar een kansrijk thema om wendbaarheid en toekomstgerichtheid te versterken.",
+    midden: "Blik naar buiten is hier een sterk punt: er is al regelmatig aandacht voor de omgeving en wat die vraagt.",
+    hoog: "Blik naar buiten is hier jullie sterkste punt: jullie reflecteren actief op de omgeving en blijven daardoor wendbaar.",
+  },
 };
 
 function praktijkrichtingVoorKwadrant(kwadrant, vragen) {
@@ -232,7 +280,11 @@ function praktijkrichtingVoorKwadrant(kwadrant, vragen) {
   const besteScore = Math.max(...vragen);
   const indexBinnenKwadrant = vragen.findIndex((v) => v === besteScore);
   const vraagNummer = start + Math.max(indexBinnenKwadrant, 0);
-  return praktijkrichtingOpVraag[vraagNummer];
+  const varianten = praktijkrichtingPerVraag[vraagNummer];
+  if (!varianten) return "Dit thema is kansrijk om verder te versterken in jullie volgende teamweek.";
+  if (besteScore <= 4) return varianten.laag;
+  if (besteScore <= 7) return varianten.midden;
+  return varianten.hoog;
 }
 
 function QuinnWiel({ scores, size = 280, animated = true }) {
@@ -283,11 +335,11 @@ function QuinnWiel({ scores, size = 280, animated = true }) {
       <circle cx={cx} cy={cy} r={maxR * 0.6} fill="rgba(255, 236, 179, 0.34)" />
       <circle cx={cx} cy={cy} r={maxR * 0.3} fill="rgba(255, 182, 193, 0.34)" />
       {gridRadii.map((f, i) => (
-        <circle key={i} cx={cx} cy={cy} r={maxR * f} fill="none" stroke="#e5e7eb" strokeWidth={1} strokeDasharray="3 3" />
+        <circle key={i} cx={cx} cy={cy} r={maxR * f} fill="none" stroke="#94a3b8" strokeWidth={1.2} strokeDasharray="3 2" />
       ))}
       {kwadranten.map(({ angle }, i) => {
         const [x, y] = polarToXY(angle, maxR);
-        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#e5e7eb" strokeWidth={1} />;
+        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#64748b" strokeWidth={1.4} />;
       })}
       <path d={polygonPath} fill="#006d82" fillOpacity={0.15} stroke="#006d82" strokeWidth={2} strokeLinejoin="round" />
       {kwadranten.map(({ key, angle }, i) => {
@@ -402,7 +454,7 @@ function RapportSectie({ kwadrant, data }) {
             →
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Praktijkrichting</div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Wat gaat er al goed</div>
             <p className="text-gray-700 text-sm font-medium">{praktijkrichting}</p>
           </div>
         </div>
@@ -482,12 +534,18 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
       `${veiligeScores.strategie.label}: ${veiligeScores.strategie.score.toFixed(1)}`,
       `${veiligeScores.missie.label}: ${veiligeScores.missie.score.toFixed(1)}`,
     ].join("\n");
-    const kwadrantRapportVolledig = [
-      `${veiligeScores.samenwerking.label}\n- Inzicht: ${tips.samenwerking.lang}`,
-      `${veiligeScores.praktijk.label}\n- Inzicht: ${tips.praktijk.lang}`,
-      `${veiligeScores.strategie.label}\n- Inzicht: ${tips.strategie.lang}`,
-      `${veiligeScores.missie.label}\n- Inzicht: ${tips.missie.lang}`,
-    ].join("\n\n");
+    const rapportVolgorde = [zwak[0], ...Object.keys(veiligeScores).filter((k) => k !== zwak[0])];
+    const kwadrantRapportVolledig = rapportVolgorde
+      .map((key) => {
+        const data = veiligeScores[key];
+        const praktijkrichting = praktijkrichtingVoorKwadrant(key, data.vragen);
+        return `${data.label}\n- Inzicht: ${tips[key].lang}\n- Wat gaat er al goed: ${praktijkrichting}`;
+      })
+      .join("\n\n");
+
+    const signaalKracht = `${veiligeScores[sterk[0]].label}: ${tips[sterk[0]].kort}`;
+    const signaalGroeikans = `${veiligeScores[zwak[0]].label}: ${tips[zwak[0]].kort}`;
+    const signaalOpvallend = `${veiligeScores[verr[0]].label}: scoort ${verr[1].score.toFixed(1)} - ${Math.abs(verr[1].score - gem) > 1.5 ? "opvallend afwijkend van jullie gemiddelde." : "iets om in de gaten te houden."}`;
 
     try {
       await emailjs.send(
@@ -508,6 +566,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
           archetype_tip_titel: actieveArchetypeTip.titel,
           archetype_tip_tekst: actieveArchetypeTip.tip,
           archetype_tip_bron: actieveArchetypeTip.bron,
+          ebook_tip_label: "Onze beste tip op basis van jouw persoonlijke scan",
           archetype_top2_naam: archetypeTop3[1].naam,
           archetype_top2_tagline: archetypeTop3[1].tagline,
           archetype_top3_naam: archetypeTop3[2].naam,
@@ -519,6 +578,10 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
           laag2_samenvatting: laag2Samenvatting,
           laag3_samenvatting: laag3Samenvatting,
           kwadrant_rapport_volledig: kwadrantRapportVolledig,
+          signaal_kracht: signaalKracht,
+          signaal_groeikans: signaalGroeikans,
+          signaal_opvallend: signaalOpvallend,
+          sparring_link: "mailto:team@uiterwaarden.com?subject=Aanvraag%20Sparring%20Sessie%20naar%20aanleiding%20van%20Scan",
         },
         { publicKey: EMAILJS_PUBLIC_KEY },
       );
@@ -616,7 +679,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
               <div className="flex-1">
                 <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[11px] font-semibold tracking-wide text-amber-800 border border-amber-200">
                   <span aria-hidden="true">📘</span>
-                  Uit: 25 Krachtige Acties voor Positief Leiderschap
+                  Onze beste tip op basis van jouw persoonlijke scan
                 </p>
                 <h3 className="mt-3 font-bold text-gray-800 text-lg leading-snug" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
                   {actieveArchetypeTip.titel}
@@ -629,7 +692,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
               </div>
               <div className="hidden sm:block flex-shrink-0">
                 <Image
-                  src="/voorkant%20ebook%2025%20tips%20positief%20leiderschap.png"
+                  src="/voorkant-ebook-25-tips-positief-leiderschap.png"
                   alt="Cover van 25 Krachtige Acties voor Positief Leiderschap"
                   width={96}
                   height={140}

@@ -42,26 +42,38 @@
               <td style="padding:0 24px 24px 24px;">
                 <div style="background:#fff6ea;border-left:4px solid #f79648;border-radius:10px;padding:14px 16px;">
                   <p style="margin:0 0 6px 0;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#c86059;font-weight:700;">
-                    Eerste stap voor volgende week
+                    {{ebook_tip_label}}
                   </p>
                   <h3 style="margin:0;font-size:18px;line-height:1.35;color:#1a1a2e;">{{archetype_tip_titel}}</h3>
                   <p style="margin:8px 0 0 0;font-size:14px;line-height:1.7;color:#334155;">{{archetype_tip_tekst}}</p>
                   <p style="margin:8px 0 0 0;font-size:12px;line-height:1.5;color:#64748b;font-style:italic;">Bron: {{archetype_tip_bron}}</p>
+                  <div style="margin-top:10px;background:#fff7d6;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.5;color:#7c5700;">
+                    Je ontvangt dit e-book gratis bij de bespreking van jouw scan.
+                  </div>
                 </div>
               </td>
             </tr>
 
             <tr>
               <td style="padding:0 24px 24px 24px;">
-                <h3 style="margin:0 0 8px 0;font-size:17px;color:#1a1a2e;">Laag 1 — Direct resultaat</h3>
-                <p style="margin:0 0 12px 0;font-size:14px;line-height:1.7;color:#334155;">{{laag1_samenvatting}}</p>
-                <pre style="margin:0;background:#f8fbfc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:13px;line-height:1.6;color:#1a1a2e;white-space:pre-wrap;">{{quadrant_scores}}</pre>
+                <h3 style="margin:0 0 8px 0;font-size:17px;color:#1a1a2e;">Wiel + kwadrantscores + signalen</h3>
+                <p style="margin:0 0 12px 0;font-size:12px;line-height:1.6;color:#64748b;">In de mail tonen we de scoreweergave; het spinnenweb zie je in het live rapport.</p>
+                <pre style="margin:0 0 12px 0;background:#f8fbfc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:13px;line-height:1.6;color:#1a1a2e;white-space:pre-wrap;">{{quadrant_scores}}</pre>
+                <div style="background:#eef7f8;border:1px solid #d9e9ec;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+                  <p style="margin:0;font-size:12px;line-height:1.6;color:#334155;"><strong>Jullie kracht:</strong> {{signaal_kracht}}</p>
+                </div>
+                <div style="background:#fff6ea;border:1px solid #ffe1c8;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+                  <p style="margin:0;font-size:12px;line-height:1.6;color:#7c2d12;"><strong>Groeikans deze week:</strong> {{signaal_groeikans}}</p>
+                </div>
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;">
+                  <p style="margin:0;font-size:12px;line-height:1.6;color:#334155;"><strong>Opvallend signaal:</strong> {{signaal_opvallend}}</p>
+                </div>
               </td>
             </tr>
 
             <tr>
               <td style="padding:0 24px 24px 24px;">
-                <h3 style="margin:0 0 8px 0;font-size:17px;color:#1a1a2e;">Laag 2 — Volledig rapport</h3>
+                <h3 style="margin:0 0 8px 0;font-size:17px;color:#1a1a2e;">Volledig rapport per kwadrant</h3>
                 <p style="margin:0 0 12px 0;font-size:14px;line-height:1.7;color:#334155;">{{laag2_samenvatting}}</p>
                 <pre style="margin:0 0 12px 0;background:#f8fbfc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:13px;line-height:1.6;color:#1a1a2e;white-space:pre-wrap;">{{kwadrant_rapport_volledig}}</pre>
                 <pre style="margin:0;background:#f8fbfc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:13px;line-height:1.6;color:#1a1a2e;white-space:pre-wrap;">{{answers}}</pre>
@@ -70,17 +82,25 @@
 
             <tr>
               <td style="padding:0 24px 24px 24px;">
-                <h3 style="margin:0 0 8px 0;font-size:17px;color:#1a1a2e;">Laag 3 — Scan-reflectie</h3>
-                <p style="margin:0;font-size:14px;line-height:1.7;color:#334155;">{{laag3_samenvatting}}</p>
+                <div style="background:#fff8f1;border:1px solid #ffe1c8;border-radius:10px;padding:12px;">
+                  <p style="margin:0 0 6px 0;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#c86059;font-weight:700;">Archetype-verdieping</p>
+                  <p style="margin:0;font-size:13px;line-height:1.7;color:#7c2d12;">
+                    Top 2 en 3 archetypen: <strong>{{archetype_top2_naam}}</strong> · <strong>{{archetype_top3_naam}}</strong>
+                  </p>
+                </div>
               </td>
             </tr>
 
             <tr>
               <td style="padding:0 24px 24px 24px;">
-                <div style="background:#fff8f1;border:1px solid #ffe1c8;border-radius:10px;padding:12px;">
-                  <p style="margin:0;font-size:12px;color:#7c2d12;">
-                    Top 2 en 3 archetypen: <strong>{{archetype_top2_naam}}</strong> · <strong>{{archetype_top3_naam}}</strong>
+                <div style="background:#fff3ec;border:1px solid #ffd5be;border-radius:10px;padding:12px;">
+                  <p style="margin:0 0 6px 0;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#c86059;font-weight:700;">Sparren over jullie uitslag?</p>
+                  <p style="margin:0;font-size:13px;line-height:1.7;color:#7c2d12;">
+                    Inbegrepen bij deze scan is een korte kennismaking / sparring sessie met een van onze coaches. 20 minuten, geen agenda, geen verkooppraatje.
                   </p>
+                  <a href="{{sparring_link}}" style="display:inline-block;margin-top:10px;background:#c86059;color:#ffffff;text-decoration:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;">
+                    Plan een sparring sessie
+                  </a>
                 </div>
               </td>
             </tr>
@@ -91,7 +111,7 @@
                   href="{{rapport_link}}"
                   style="display:inline-block;background:#006d82;color:#ffffff;text-decoration:none;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;"
                 >
-                  Bekijk het live rapport met spinnenweb
+                  Open het live rapport
                 </a>
               </td>
             </tr>
