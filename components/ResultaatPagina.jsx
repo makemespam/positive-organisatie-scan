@@ -5,7 +5,6 @@ import emailjs from "@emailjs/browser";
 import { useState, useEffect } from "react";
 import { bepaalArchetype } from "@/lib/archetypes";
 import { encodeAnswersToV } from "@/lib/report-url";
-import ebookCover from "@/temp/voorkant ebook 25 tips positief leiderschap.png";
 
 const EMAILJS_SERVICE_ID = (process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "").trim();
 const EMAILJS_USER_TEMPLATE_ID = (process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_USER ?? "").trim();
@@ -630,7 +629,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
               </div>
               <div className="hidden sm:block flex-shrink-0">
                 <Image
-                  src={ebookCover}
+                  src="/voorkant-ebook-25-tips-positief-leiderschap.png"
                   alt="Cover van 25 Krachtige Acties voor Positief Leiderschap"
                   width={96}
                   height={140}
