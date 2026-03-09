@@ -5,7 +5,7 @@ import emailjs from "@emailjs/browser";
 import { useState, useEffect, useRef } from "react";
 import { bepaalArchetype } from "@/lib/archetypes";
 import { encodeAnswersToV } from "@/lib/report-url";
-import { kwadrantLabels, kwadrantSubtitels, rapportCopy, vraagLabels } from "@/lib/copy";
+import { kwadrantLabels, rapportCopy, vraagLabels } from "@/lib/copy";
 
 const EMAILJS_SERVICE_ID = (process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "").trim();
 const EMAILJS_USER_TEMPLATE_ID = (process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_USER ?? "").trim();
@@ -777,9 +777,6 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
                     <div className="flex justify-between items-center mb-1.5">
                       <div>
                         <span className="text-sm font-semibold text-gray-700">{data.label}</span>
-                        {key === "praktijk" && (
-                          <p className="text-[11px] text-gray-400 mt-0.5">{kwadrantSubtitels.praktijk}</p>
-                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: kwadrantLicht[key], color: kleur }}>
@@ -860,7 +857,15 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
               {rapportCopy.sparringBody}
             </p>
             <a
-              href="mailto:team@uiterwaarden.com?subject=Scan-reflectie%20aanvragen&body=Hoi%2C%20ik%20wil%20graag%20een%20sparring%20sessie%20inplannen%20naar%20aanleiding%20van%20mijn%20Positieve%20Organisatie%20Scan."
+              href=""
+              onClick={(e) => {
+                e.preventDefault();
+                if (typeof window !== "undefined" && window.Calendly?.initPopupWidget) {
+                  window.Calendly.initPopupWidget({
+                    url: "https://calendly.com/bureauopdrift/positieve-organisatie-scan?hide_gdpr_banner=1",
+                  });
+                }
+              }}
               className="inline-block mt-4 px-4 py-2 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity"
               style={{ background: "#f79648" }}
             >
