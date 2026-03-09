@@ -4,6 +4,7 @@ import Image from "next/image";
 import emailjs from "@emailjs/browser";
 import { useState, useEffect, useRef } from "react";
 import { bepaalArchetype } from "@/lib/archetypes";
+import { encodeAnswersToV } from "@/lib/report-url";
 
 const EMAILJS_SERVICE_ID = (process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "").trim();
 const EMAILJS_USER_TEMPLATE_ID = (process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_USER ?? "").trim();
@@ -316,9 +317,13 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
     praktijk: veiligeScores.praktijk.score,
     strategie: veiligeScores.strategie.score,
     missie: veiligeScores.missie.score,
-  });
+  }, answers);
   const { beste, runner1, runner2, zekerheid } = archetypeResultaat;
   const archetypeTop3 = [beste, runner1, runner2];
+  const rapportLink =
+    answers.length === 12
+      ? `https://positive-organisatie-scan.vercel.app/rapport?v=${encodeAnswersToV(answers)}&n=${encodeURIComponent(naam)}&e=${encodeURIComponent(emailInput)}`
+      : "https://positive-organisatie-scan.vercel.app/";
 
   const bepaalArchetypeKleur = () => {
     const ideaal = beste?.ideaal ?? {};
@@ -364,6 +369,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
         {
           name: naam,
           email: emailInput,
+          rapport_link: rapportLink,
           quadrant_scores: quadrantSummary,
           strongest_quadrant: veiligeScores[sterk[0]].label,
             answers: antwoordenSamenvatting,
@@ -389,6 +395,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
         {
           participant_name: naam,
           participant_email: emailInput,
+          rapport_link: rapportLink,
           quadrant_scores: quadrantSummary,
           strongest_quadrant: veiligeScores[sterk[0]].label,
           admin_email: ADMIN_EMAIL,
@@ -447,6 +454,11 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
             <div className="mt-4 inline-flex rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "white", color: archetypeStijl.kleur }}>
               {zekerheidTekst}
             </div>
+            {archetypeResultaat.isDefaultIngevuld && (
+              <p className="mt-3 text-xs text-amber-700">
+                Let op: alle 12 antwoorden staan op 5. Dit lijkt op een standaardinvulling en geeft mogelijk geen betrouwbaar teambeeld.
+              </p>
+            )}
             {zekerheid < 60 && (
               <p className="mt-3 text-xs text-gray-500">
                 Runners-up: {runner1.naam} · {runner2.naam}

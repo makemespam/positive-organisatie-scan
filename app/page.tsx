@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { getAnchorForScore, quadrants, questions } from "@/lib/scan-config";
+import { encodeAnswersToV } from "@/lib/report-url";
 
 type Step = "welcome" | "questions" | "lead";
 
@@ -48,33 +49,12 @@ export default function Home() {
   const handleLeadSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmittingLead(true);
-
-    const samenwerking = answers.slice(0, 3);
-    const praktijk = answers.slice(3, 6);
-    const strategie = answers.slice(6, 9);
-    const missie = answers.slice(9, 12);
-
-    const avg = (values: number[]) =>
-      values.length ? Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(1)) : 0;
-
-    const scores = {
-      samenwerking: { label: "Samenwerking", score: avg(samenwerking), vragen: samenwerking },
-      praktijk: { label: "Praktijk", score: avg(praktijk), vragen: praktijk },
-      strategie: { label: "Strategie & Basis op orde", score: avg(strategie), vragen: strategie },
-      missie: { label: "Missie & Zingeving", score: avg(missie), vragen: missie },
-    };
-
-    const payload = encodeURIComponent(
-      JSON.stringify({
-        naam: lead.name,
-        email: lead.email,
-        scores,
-        answers,
-      }),
-    );
+    const v = encodeAnswersToV(answers);
+    const n = encodeURIComponent(lead.name);
+    const e = encodeURIComponent(lead.email);
 
     setIsSubmittingLead(false);
-    router.push(`/resultaat?data=${payload}`);
+    router.push(`/rapport?v=${v}&n=${n}&e=${e}`);
   };
 
   return (

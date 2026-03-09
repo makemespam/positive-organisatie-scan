@@ -1,4 +1,5 @@
 import ResultaatPagina from "@/components/ResultaatPagina";
+import { buildScoresFromAnswers, decodeVToAnswers } from "@/lib/report-url";
 
 type ScorePayload = {
   samenwerking: { label: string; score: number; vragen: number[] };
@@ -8,7 +9,7 @@ type ScorePayload = {
 };
 
 type ResultaatRouteProps = {
-  searchParams: Promise<{ data?: string }>;
+  searchParams: Promise<{ data?: string; v?: string; n?: string; e?: string }>;
 };
 
 export default async function ResultaatRoute({ searchParams }: ResultaatRouteProps) {
@@ -16,7 +17,17 @@ export default async function ResultaatRoute({ searchParams }: ResultaatRoutePro
   const encoded = params?.data;
   let payload: { naam?: string; email?: string; scores?: ScorePayload; answers?: number[] } = {};
 
-  if (encoded) {
+  if (params?.v) {
+    const parsedAnswers = decodeVToAnswers(params.v);
+    if (parsedAnswers) {
+      payload = {
+        naam: params.n ?? "",
+        email: params.e ?? "",
+        answers: parsedAnswers,
+        scores: buildScoresFromAnswers(parsedAnswers),
+      };
+    }
+  } else if (encoded) {
     try {
       payload = JSON.parse(decodeURIComponent(encoded));
     } catch {
