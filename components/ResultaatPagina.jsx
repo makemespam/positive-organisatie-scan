@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import emailjs from "@emailjs/browser";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { bepaalArchetype } from "@/lib/archetypes";
 import { encodeAnswersToV } from "@/lib/report-url";
+import ebookCover from "@/temp/voorkant ebook 25 tips positief leiderschap.png";
 
 const EMAILJS_SERVICE_ID = (process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "").trim();
 const EMAILJS_USER_TEMPLATE_ID = (process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_USER ?? "").trim();
@@ -212,6 +213,29 @@ const tips = {
   },
 };
 
+const praktijkrichtingOpVraag = {
+  1: "Jullie blinken uit in kwetsbaarheid. Fouten mogen gemaakt en besproken worden, wat een enorme versneller is voor psychologische veiligheid en het lerend vermogen.",
+  2: "De collectieve draagkracht is een absolute sterkte. Als de druk oploopt, vangen jullie elkaar op en wordt de last samen gedragen.",
+  3: "Er zit veel positieve energie en plezier in dit team. Deze ontspannen connectie is de perfecte buffer tegen stress en werkdruk.",
+  4: "De spelregels zijn helder en nieuwkomers stappen soepel in. Dit zorgt voor een veilige, voorspelbare basis waar iedereen weet waar hij aan toe is.",
+  5: "Jullie overleggen zijn inclusief; iedereen voelt de ruimte om zich uit te spreken. Dit betekent dat jullie optimaal gebruik maken van alle aanwezige denkkracht.",
+  6: "Er is veel vertrouwen in het team. Jullie sturen op resultaat in plaats van micromanagement, wat zorgt voor een hoog gevoel van autonomie en werkplezier.",
+  7: "De kaders en doelen zijn kraakhelder. Iedereen weet precies wat succes betekent, waardoor jullie als team heel gericht meters kunnen maken.",
+  8: "De rolverdeling staat als een huis. Het is voor iedereen volkomen duidelijk wie wat oppakt, wat blinde vlekken en dubbel werk voorkomt.",
+  9: "Het eigenaarschap is breed verankerd. Het team leunt niet op een persoon, maar draait zelfstandig door en pakt verantwoordelijkheid.",
+  10: "Jullie werk voelt betekenisvol. Het team snapt en voelt de verbinding tussen de dagelijkse taken en de grotere, positieve missie van de organisatie.",
+  11: "Teamleden werken volop vanuit hun eigen kracht. Er is veel ruimte om unieke kwaliteiten op een eigen, passende manier in te zetten.",
+  12: "Jullie hebben een sterke blik naar buiten. Er is actief ruimte om te reflecteren op de omgeving en jullie rol daarin, waardoor jullie wendbaar blijven.",
+};
+
+function praktijkrichtingVoorKwadrant(kwadrant, vragen) {
+  const start = kwadrantVraagStart[kwadrant];
+  const besteScore = Math.max(...vragen);
+  const indexBinnenKwadrant = vragen.findIndex((v) => v === besteScore);
+  const vraagNummer = start + Math.max(indexBinnenKwadrant, 0);
+  return praktijkrichtingOpVraag[vraagNummer];
+}
+
 function QuinnWiel({ scores, size = 280, animated = true }) {
   const [progress, setProgress] = useState(animated ? 0 : 1);
   useEffect(() => {
@@ -256,6 +280,9 @@ function QuinnWiel({ scores, size = 280, animated = true }) {
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <circle cx={cx} cy={cy} r={maxR} fill="rgba(140, 180, 172, 0.28)" />
+      <circle cx={cx} cy={cy} r={maxR * 0.6} fill="rgba(255, 236, 179, 0.34)" />
+      <circle cx={cx} cy={cy} r={maxR * 0.3} fill="rgba(255, 182, 193, 0.34)" />
       {gridRadii.map((f, i) => (
         <circle key={i} cx={cx} cy={cy} r={maxR * f} fill="none" stroke="#e5e7eb" strokeWidth={1} strokeDasharray="3 3" />
       ))}
@@ -327,6 +354,7 @@ function RapportSectie({ kwadrant, data }) {
   const licht = kwadrantLicht[kwadrant];
   const tip = tips[kwadrant];
   const sl = scoreLabel(data.score);
+  const praktijkrichting = praktijkrichtingVoorKwadrant(kwadrant, data.vragen);
 
   return (
     <div className="mb-8 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
@@ -376,7 +404,7 @@ function RapportSectie({ kwadrant, data }) {
           </div>
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Praktijkrichting</div>
-            <p className="text-gray-700 text-sm font-medium">Vertaal dit inzicht naar 1 klein experiment in jullie eerstvolgende teamweek.</p>
+            <p className="text-gray-700 text-sm font-medium">{praktijkrichting}</p>
           </div>
         </div>
       </div>
@@ -389,11 +417,9 @@ function RapportSectie({ kwadrant, data }) {
  */
 export default function ResultaatPagina({ scores = null, naam = "", email = "", answers = [] }) {
   const veiligeScores = scores ?? defaultScores;
-  const [laag, setLaag] = useState(1);
   const [emailVerzonden, setEmailVerzonden] = useState(false);
   const [emailInput, setEmailInput] = useState(email ?? "");
   const [mailError, setMailError] = useState("");
-  const rapportRef = useRef(null);
 
   const sterk = sterksteKwadrant(veiligeScores);
   const zwak = zwaksteKwadrant(veiligeScores);
@@ -586,21 +612,32 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
             </div>
           </div>
 
-          <div
-            className="rounded-2xl p-5 mb-5"
-            style={{
-              background: "rgba(248, 193, 88, 0.16)",
-              borderLeft: `4px solid ${brand.oranje}`,
-            }}
-          >
-            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: brand.oranje }}>
-              Eerste stap voor volgende week
-            </p>
-            <h3 className="font-bold text-gray-800 text-lg leading-snug" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
-              {actieveArchetypeTip.titel}
-            </h3>
-            <p className="mt-2 text-sm text-gray-700">{actieveArchetypeTip.tip}</p>
-            <p className="mt-3 text-xs italic text-gray-500">{actieveArchetypeTip.bron}</p>
+          <div className="rounded-2xl p-5 mb-5 border border-amber-100" style={{ background: "linear-gradient(135deg, #fff9ef, #fff4df)" }}>
+            <div className="flex items-start gap-4">
+              <div className="flex-1">
+                <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[11px] font-semibold tracking-wide text-amber-800 border border-amber-200">
+                  <span aria-hidden="true">📘</span>
+                  Uit: 25 Krachtige Acties voor Positief Leiderschap
+                </p>
+                <h3 className="mt-3 font-bold text-gray-800 text-lg leading-snug" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
+                  {actieveArchetypeTip.titel}
+                </h3>
+                <p className="mt-2 text-sm text-gray-700">{actieveArchetypeTip.tip}</p>
+                <p className="mt-3 text-xs italic text-gray-500">Bron: {actieveArchetypeTip.bron}</p>
+                <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                  Je ontvangt dit e-book gratis bij de bespreking van jouw scan.
+                </div>
+              </div>
+              <div className="hidden sm:block flex-shrink-0">
+                <Image
+                  src={ebookCover}
+                  alt="Cover van 25 Krachtige Acties voor Positief Leiderschap"
+                  width={96}
+                  height={140}
+                  className="rounded-md border border-amber-200 object-cover shadow-sm"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-5">
@@ -662,106 +699,84 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
               <span className="font-semibold text-gray-700">Een 10 is niet het doel.</span> Een uitgebalanceerd team floreert.
             </p>
           </div>
-
-          <div className="space-y-3">
-            <button onClick={() => setLaag(2)} className="w-full py-4 rounded-2xl text-white font-bold text-base shadow-md hover:opacity-90 transition-opacity" style={{ background: `linear-gradient(135deg, ${brand.groen}, ${brand.blauw})` }}>
-              Bekijk het volledige rapport
-            </button>
-            <button onClick={() => setLaag(3)} className="w-full py-4 rounded-2xl font-bold text-base border-2 transition-all hover:shadow-md" style={{ borderColor: brand.oranje, color: brand.oranje, background: "white" }}>
-              Bespreek dit in een Scan-reflectie
-            </button>
-          </div>
         </div>
 
-        {laag >= 2 && (
-          <div ref={rapportRef} className="mt-4 mb-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex-1 h-px bg-gray-200" />
-              <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 px-2">Volledig rapport</div>
-              <div className="flex-1 h-px bg-gray-200" />
-            </div>
-
-            {[zwak[0], ...Object.keys(veiligeScores).filter((k) => k !== zwak[0])].map((key) => (
-              <RapportSectie key={key} kwadrant={key} data={veiligeScores[key]} />
-            ))}
-
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 mb-6">
-              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Archetype-verdieping</p>
-              <h3 className="text-xl font-bold text-gray-800" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
-                Top 2 en 3 als ontwikkelrichting
-              </h3>
-              <p className="text-sm text-gray-600 mt-2">
-                Naast jullie hoofdprofiel <strong>{beste.naam}</strong> wijzen de volgende archetypen op kansrijke nuances in jullie ontwikkeling.
-              </p>
-              <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                <li><strong>2. {runner1.naam}:</strong> {runner1.tagline}</li>
-                <li><strong>3. {runner2.naam}:</strong> {runner2.tagline}</li>
-              </ul>
-            </div>
-
-            <div className="rounded-3xl overflow-hidden shadow-sm border border-gray-100 mb-6" style={{ background: `linear-gradient(135deg, ${brand.roze}, white)` }}>
-              <div className="p-6">
-                <h3 className="font-black text-gray-800 text-lg mb-2" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
-                  Ontvang dit rapport in je mailbox
-                </h3>
-                <p className="text-gray-600 text-sm mb-4 leading-relaxed">We sturen je resultaten direct naar je inbox.</p>
-                {emailVerzonden ? (
-                  <div className="rounded-xl p-4 text-center" style={{ background: kwadrantLicht.samenwerking }}>
-                    <div className="text-2xl mb-1">✓</div>
-                    <p className="font-bold text-sm" style={{ color: brand.groen }}>
-                      Rapport onderweg naar {emailInput}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <input
-                        type="email"
-                        value={emailInput}
-                        onChange={(e) => setEmailInput(e.target.value)}
-                        placeholder="jouw@email.nl"
-                        className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 bg-white"
-                        style={{ "--tw-ring-color": brand.groen }}
-                      />
-                      <button onClick={handleRapportAanvragen} className="px-5 py-3 rounded-xl text-white text-sm font-bold flex-shrink-0 hover:opacity-90 transition-opacity" style={{ background: brand.groen }}>
-                        Stuur
-                      </button>
-                    </div>
-                    {mailError && <p className="text-xs text-red-600 break-all">EmailJS fout: {mailError}</p>}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="text-center">
-              <button onClick={() => setLaag(3)} className="w-full py-4 rounded-2xl text-white font-bold text-base shadow-md hover:opacity-90 transition-opacity" style={{ background: `linear-gradient(135deg, ${brand.oranje}, ${brand.donkerrood})` }}>
-                Plan een Scan-reflectie gesprek →
-              </button>
-            </div>
+        <div className="mt-4 mb-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-gray-200" />
+            <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 px-2">Volledig rapport per kwadrant</div>
+            <div className="flex-1 h-px bg-gray-200" />
           </div>
-        )}
 
-        {laag >= 3 && (
-          <div className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex-1 h-px bg-gray-200" />
-              <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 px-2">Scan-reflectie</div>
-              <div className="flex-1 h-px bg-gray-200" />
-            </div>
+          {[zwak[0], ...Object.keys(veiligeScores).filter((k) => k !== zwak[0])].map((key) => (
+            <RapportSectie key={key} kwadrant={key} data={veiligeScores[key]} />
+          ))}
 
-            <a
-              href="mailto:team@uiterwaarden.com?subject=Scan-reflectie"
-              className="block w-full py-5 rounded-2xl text-white font-black text-lg text-center shadow-lg hover:opacity-90 transition-all hover:scale-[1.01]"
-              style={{ background: `linear-gradient(135deg, ${brand.oranje} 0%, ${brand.donkerrood} 100%)` }}
-            >
-              Plan jouw Scan-reflectie →
-            </a>
-            <p className="text-center text-gray-400 text-xs mt-3">Kies zelf een moment · Gratis · 20 minuten</p>
-            <p className="text-center text-xs text-gray-500 mt-3">
-              Voor dit gesprek nemen we ook jullie archetype-rangorde mee: {runner1.naam} en {runner2.naam}.
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 mb-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Archetype-verdieping</p>
+            <h3 className="text-xl font-bold text-gray-800" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
+              Top 2 en 3 als ontwikkelrichting
+            </h3>
+            <p className="text-sm text-gray-600 mt-2">
+              Naast jullie hoofdprofiel <strong>{beste.naam}</strong> wijzen de volgende archetypen op kansrijke nuances in jullie ontwikkeling.
             </p>
+            <ul className="mt-3 space-y-2 text-sm text-gray-700">
+              <li><strong>2. {runner1.naam}:</strong> {runner1.tagline}</li>
+              <li><strong>3. {runner2.naam}:</strong> {runner2.tagline}</li>
+            </ul>
           </div>
-        )}
+
+          <div className="rounded-2xl border border-orange-200 p-6 mb-6" style={{ background: "linear-gradient(135deg, #fff3ec, #fffaf5)" }}>
+            <p className="text-xs font-semibold uppercase tracking-widest text-orange-600 mb-2">Sparring</p>
+            <h3 className="font-black text-gray-800 text-xl mb-2" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
+              Sparren over jullie uitslag?
+            </h3>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              Inbegrepen bij deze scan is een korte kennismaking / sparring sessie met een van onze coaches. - 20 minuten, geen agenda, geen verkooppraatje. We bekijken samen wat jullie profiel zegt en wat een zinvolle eerste stap zou zijn.
+            </p>
+            <a
+              href="mailto:team@uiterwaarden.com?subject=Aanvraag%20Sparring%20Sessie%20naar%20aanleiding%20van%20Scan"
+              className="inline-block mt-4 px-4 py-2 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity"
+              style={{ background: `linear-gradient(135deg, ${brand.oranje}, ${brand.donkerrood})` }}
+            >
+              Plan een sparring sessie
+            </a>
+          </div>
+
+          <div className="rounded-3xl overflow-hidden shadow-sm border border-gray-100 mb-6" style={{ background: `linear-gradient(135deg, ${brand.roze}, white)` }}>
+            <div className="p-6">
+              <h3 className="font-black text-gray-800 text-lg mb-2" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
+                Mail mijn rapport
+              </h3>
+              <p className="text-gray-600 text-sm mb-4 leading-relaxed">We sturen je resultaten direct naar je inbox.</p>
+              {emailVerzonden ? (
+                <div className="rounded-xl p-4 text-center" style={{ background: kwadrantLicht.samenwerking }}>
+                  <div className="text-2xl mb-1">✓</div>
+                  <p className="font-bold text-sm" style={{ color: brand.groen }}>
+                    Rapport onderweg naar {emailInput}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      placeholder="jouw@email.nl"
+                      className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 bg-white"
+                      style={{ "--tw-ring-color": brand.groen }}
+                    />
+                    <button onClick={handleRapportAanvragen} className="px-5 py-3 rounded-xl text-white text-sm font-bold flex-shrink-0 hover:opacity-90 transition-opacity" style={{ background: brand.groen }}>
+                      Mail mijn rapport
+                    </button>
+                  </div>
+                  {mailError && <p className="text-xs text-red-600 break-all">EmailJS fout: {mailError}</p>}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );
