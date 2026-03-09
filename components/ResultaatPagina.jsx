@@ -76,6 +76,94 @@ const vraagTitels = [
   "Blik naar buiten",
 ];
 
+const archetypeTips = {
+  positieve_organisatie: {
+    titel: "ReVlectie",
+    tip: "Vraag jezelf elke vrijdag af: Wat gaf me deze week Vreugde, Verbinding en Vooruitgang?",
+    bron: "(p.7, actie 4)",
+  },
+  presterend_eiland: {
+    titel: "Erken moeite",
+    tip: "Waardeer de intentie en inspanningen van je medewerker expliciet.",
+    bron: "(p.10, actie 3)",
+  },
+  inspirerende_chaos: {
+    titel: "Schaalvragen eigenaarschap",
+    tip: "Stel schaalvragen. Vraag bijvoorbeeld: op een schaal van 1-10, hoe zeker ben je?",
+    bron: "(p.12)",
+  },
+  gezellig_drijfzand: {
+    titel: "Begin met betekenis",
+    tip: "Begin met betekenis in plaats van taken: waarom is dit project belangrijk, en voor wie?",
+    bron: "(p.16)",
+  },
+  efficiente_machine: {
+    titel: "Gouden moment",
+    tip: "Vraag teamleden naar een moment waarop ze echt trots waren of geraakt werden, als ingang naar zingeving.",
+    bron: "(p.16)",
+  },
+  theekransje: {
+    titel: "Waardenwandeling",
+    tip: "Waar werd je enthousiast van de afgelopen tijd en wat is er nodig om dat te verdubbelen?",
+    bron: "(p.16)",
+  },
+  gedreven_cowboys: {
+    titel: "Jaardoel",
+    tip: "Voeg aan het gesprek over jaardoelen de vraag toe: wat wil je dit jaar bijdragen waar je over 5 jaar nog met voldoening op terugkijkt?",
+    bron: "(p.16)",
+  },
+  bevlogen_gemeenschap: {
+    titel: "Schaalvragen + open vragen",
+    tip: "Stel open vragen, zoals: wat zie jij als de volgende stap?",
+    bron: "(p.12)",
+  },
+  resultatenboer: {
+    titel: "Vier succes, hoe klein ook",
+    tip: "Vier ook de andere successen, zoals de inspanningen en de samenwerking.",
+    bron: "(p.11, actie 4)",
+  },
+  professionele_eenzame: {
+    titel: "Collegiale coaching",
+    tip: "Introduceer collegiale coaching waarbij teamleden leren waarderende vragen te stellen.",
+    bron: "(p.12)",
+  },
+  bureaucratische_presteerder: {
+    titel: "Intentie",
+    tip: "Begin je dag met een intentie: hoe wil je vandaag zijn in je team, in plaats van wat je gaat doen?",
+    bron: "(p.7, actie 1)",
+  },
+  warm_wrak: {
+    titel: "Positieve uitzondering",
+    tip: "Ga in je team geregeld op zoek naar een positieve uitzondering. Ontdek wat er in deze uitzondering verborgen ligt waar het team meer van wil in de toekomst.",
+    bron: "(p.14, actie 2)",
+  },
+  lege_machine: {
+    titel: "Check-in + Eigen houding",
+    tip: "Wees in je team open over wat je intentie was, wat er anders is gegaan en wat je ervan hebt geleerd zonder jezelf te veroordelen.",
+    bron: "(p.11, actie 5)",
+  },
+  eenzame_strateeg: {
+    titel: "Collegiale coaching + open vragen",
+    tip: "Introduceer collegiale coaching en begeleid de volgende stap door te vragen: Wat zie jij als de volgende stap?",
+    bron: "(p.12)",
+  },
+  bevlogen_puinhoop: {
+    titel: "Turbo brainstorm",
+    tip: "Heb je een probleem te pakken? Stop met analyseren en ga creeren. Zet een stopwatch op 5 minuten.",
+    bron: "(p.14, actie 3)",
+  },
+  uitgeblust: {
+    titel: "Maak ruimte bij stress",
+    tip: "Creëer een gezamenlijke pauze om te herstellen van stress met ademhalingsoefeningen of een buitenwandeling.",
+    bron: "(p.14, actie 4)",
+  },
+  solide_middenveld: {
+    titel: "Energiebarometer",
+    tip: "Laat je medewerkers aangeven hoe ze in hun energie zitten.",
+    bron: "(p.14, actie 1)",
+  },
+};
+
 function gemiddelde(scores) {
   return Object.values(scores).reduce((s, k) => s + k.score, 0) / Object.keys(scores).length;
 }
@@ -287,8 +375,8 @@ function RapportSectie({ kwadrant, data }) {
             →
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Eerste stap volgende week</div>
-            <p className="text-gray-700 text-sm font-medium">{tip.actie}</p>
+            <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Praktijkrichting</div>
+            <p className="text-gray-700 text-sm font-medium">Vertaal dit inzicht naar 1 klein experiment in jullie eerstvolgende teamweek.</p>
           </div>
         </div>
       </div>
@@ -320,6 +408,11 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
   }, answers);
   const { beste, runner1, runner2, zekerheid } = archetypeResultaat;
   const archetypeTop3 = [beste, runner1, runner2];
+  const actieveArchetypeTip = archetypeTips[beste.id] ?? {
+    titel: "Eerste stap voor volgende week",
+    tip: "Plan een kort teammoment om samen te bepalen wat jullie komende week als team willen versterken.",
+    bron: "Bron onbekend",
+  };
   const rapportLink =
     answers.length === 12
       ? `https://positive-organisatie-scan.vercel.app/rapport?v=${encodeAnswersToV(answers)}&n=${encodeURIComponent(naam)}&e=${encodeURIComponent(emailInput)}`
@@ -344,6 +437,9 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
   const laag1Samenvatting = `Topmatch: ${beste.naam}. Gemiddelde teamscore: ${gem.toFixed(1)} (${gemSl.label}).`;
   const laag2Samenvatting = `Verdieping: sterkste kwadrant is ${veiligeScores[sterk[0]].label}; groeikans ligt bij ${veiligeScores[zwak[0]].label}.`;
   const laag3Samenvatting = `Gespreksfocus: verbind ${runner1.naam} en ${runner2.naam} met concrete teamafspraken voor de komende 2 weken.`;
+  const defaultWaarschuwing = archetypeResultaat.isDefaultIngevuld
+    ? "Let op: alle 12 antwoorden staan op 5. Dit lijkt op een standaardinvulling en geeft mogelijk geen betrouwbaar teambeeld."
+    : "";
   const antwoordenSamenvatting = answers.length
     ? answers.map((score, index) => `V${index + 1} (${vraagTitels[index] ?? "Vraag"}): ${score}`).join("\n")
     : [
@@ -361,6 +457,12 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
       `${veiligeScores.strategie.label}: ${veiligeScores.strategie.score.toFixed(1)}`,
       `${veiligeScores.missie.label}: ${veiligeScores.missie.score.toFixed(1)}`,
     ].join("\n");
+    const kwadrantRapportVolledig = [
+      `${veiligeScores.samenwerking.label}\n- Inzicht: ${tips.samenwerking.lang}`,
+      `${veiligeScores.praktijk.label}\n- Inzicht: ${tips.praktijk.lang}`,
+      `${veiligeScores.strategie.label}\n- Inzicht: ${tips.strategie.lang}`,
+      `${veiligeScores.missie.label}\n- Inzicht: ${tips.missie.lang}`,
+    ].join("\n\n");
 
     try {
       await emailjs.send(
@@ -372,19 +474,26 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
           rapport_link: rapportLink,
           quadrant_scores: quadrantSummary,
           strongest_quadrant: veiligeScores[sterk[0]].label,
-            answers: antwoordenSamenvatting,
-            archetype_top1_naam: archetypeTop3[0].naam,
-            archetype_top1_tagline: archetypeTop3[0].tagline,
-            archetype_top1_risico: archetypeTop3[0].risico,
-            archetype_top2_naam: archetypeTop3[1].naam,
-            archetype_top2_tagline: archetypeTop3[1].tagline,
-            archetype_top3_naam: archetypeTop3[2].naam,
-            archetype_top3_tagline: archetypeTop3[2].tagline,
-            archetype_zekerheid: `${zekerheid}%`,
-            archetype_zekerheid_label: zekerheidTekst,
-            laag1_samenvatting: laag1Samenvatting,
-            laag2_samenvatting: laag2Samenvatting,
-            laag3_samenvatting: laag3Samenvatting,
+          answers: antwoordenSamenvatting,
+          archetype_top1_naam: archetypeTop3[0].naam,
+          archetype_top1_tagline: archetypeTop3[0].tagline,
+          archetype_top1_omschrijving: archetypeTop3[0].omschrijving,
+          archetype_top1_risico: archetypeTop3[0].risico,
+          archetype_top1_herkenbaar: archetypeTop3[0].herkenbaar,
+          archetype_tip_titel: actieveArchetypeTip.titel,
+          archetype_tip_tekst: actieveArchetypeTip.tip,
+          archetype_tip_bron: actieveArchetypeTip.bron,
+          archetype_top2_naam: archetypeTop3[1].naam,
+          archetype_top2_tagline: archetypeTop3[1].tagline,
+          archetype_top3_naam: archetypeTop3[2].naam,
+          archetype_top3_tagline: archetypeTop3[2].tagline,
+          archetype_zekerheid: `${zekerheid}%`,
+          archetype_zekerheid_label: zekerheidTekst,
+          archetype_default_waarschuwing: defaultWaarschuwing,
+          laag1_samenvatting: laag1Samenvatting,
+          laag2_samenvatting: laag2Samenvatting,
+          laag3_samenvatting: laag3Samenvatting,
+          kwadrant_rapport_volledig: kwadrantRapportVolledig,
         },
         { publicKey: EMAILJS_PUBLIC_KEY },
       );
@@ -401,12 +510,17 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
           admin_email: ADMIN_EMAIL,
           answers: antwoordenSamenvatting,
           archetype_top1_naam: archetypeTop3[0].naam,
+          archetype_tip_titel: actieveArchetypeTip.titel,
+          archetype_tip_tekst: actieveArchetypeTip.tip,
+          archetype_tip_bron: actieveArchetypeTip.bron,
           archetype_top2_naam: archetypeTop3[1].naam,
           archetype_top3_naam: archetypeTop3[2].naam,
           archetype_zekerheid: `${zekerheid}%`,
+          archetype_default_waarschuwing: defaultWaarschuwing,
           laag1_samenvatting: laag1Samenvatting,
           laag2_samenvatting: laag2Samenvatting,
           laag3_samenvatting: laag3Samenvatting,
+          kwadrant_rapport_volledig: kwadrantRapportVolledig,
         },
         { publicKey: EMAILJS_PUBLIC_KEY },
       );
@@ -450,6 +564,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
               {beste.naam}
             </h2>
             <p className="mt-2 text-sm italic text-gray-700">{beste.tagline}</p>
+            <p className="mt-2 text-sm text-gray-700">{beste.omschrijving}</p>
             <p className="mt-2 text-xs text-gray-500">{beste.risico}</p>
             <div className="mt-4 inline-flex rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "white", color: archetypeStijl.kleur }}>
               {zekerheidTekst}
@@ -469,6 +584,23 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
                 Top 3 archetypen: <strong>1.</strong> {beste.naam} · <strong>2.</strong> {runner1.naam} · <strong>3.</strong> {runner2.naam}
               </p>
             </div>
+          </div>
+
+          <div
+            className="rounded-2xl p-5 mb-5"
+            style={{
+              background: "rgba(248, 193, 88, 0.16)",
+              borderLeft: `4px solid ${brand.oranje}`,
+            }}
+          >
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: brand.oranje }}>
+              Eerste stap voor volgende week
+            </p>
+            <h3 className="font-bold text-gray-800 text-lg leading-snug" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
+              {actieveArchetypeTip.titel}
+            </h3>
+            <p className="mt-2 text-sm text-gray-700">{actieveArchetypeTip.tip}</p>
+            <p className="mt-3 text-xs italic text-gray-500">{actieveArchetypeTip.bron}</p>
           </div>
 
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-5">
