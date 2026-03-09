@@ -6,6 +6,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { getAnchorForScore, quadrants, questions } from "@/lib/scan-config";
 import { encodeAnswersToV } from "@/lib/report-url";
+import { uitlegCopy } from "@/lib/copy";
 
 type Step = "welcome" | "questions" | "lead";
 
@@ -57,6 +58,12 @@ export default function Home() {
     router.push(`/rapport?v=${v}&n=${n}&e=${e}`);
   };
 
+  const handleSkipLead = () => {
+    const v = encodeAnswersToV(answers);
+    const n = encodeURIComponent(lead.name);
+    router.push(`/rapport?v=${v}&n=${n}&skip=1`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 text-slate-900">
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
@@ -91,6 +98,22 @@ export default function Home() {
             >
               Start de scan
             </button>
+
+            <details className="rounded-2xl border border-slate-200 bg-white p-4">
+              <summary className="cursor-pointer text-sm font-semibold" style={{ color: brand.groen }}>
+                {uitlegCopy.titel}
+              </summary>
+              <div className="mt-3 space-y-3">
+                <p className="text-sm leading-relaxed text-slate-600">{uitlegCopy.toelichting}</p>
+                <Image
+                  src={uitlegCopy.graphicPad}
+                  alt="Competing Values Framework van Robert Quinn"
+                  width={1200}
+                  height={700}
+                  className="h-auto w-full rounded-lg object-contain"
+                />
+              </div>
+            </details>
           </section>
         )}
 
@@ -225,6 +248,13 @@ export default function Home() {
                 style={{ background: `linear-gradient(135deg, ${brand.oranje}, ${brand.donkerrood})` }}
               >
                 {isSubmittingLead ? "Bezig met verwerken..." : "Bekijk mijn resultaat"}
+              </button>
+              <button
+                type="button"
+                onClick={handleSkipLead}
+                className="block text-sm text-slate-500 underline underline-offset-2 hover:text-slate-700"
+              >
+                Sla e-mail over en bekijk direct je resultaat
               </button>
             </form>
           </section>

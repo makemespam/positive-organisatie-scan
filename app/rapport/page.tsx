@@ -2,7 +2,7 @@ import ResultaatPagina from "@/components/ResultaatPagina";
 import { buildScoresFromAnswers, decodeVToAnswers } from "@/lib/report-url";
 
 type RapportRouteProps = {
-  searchParams: Promise<{ v?: string; n?: string; e?: string }>;
+  searchParams: Promise<{ v?: string; n?: string; e?: string; skip?: string }>;
 };
 
 export default async function RapportRoute({ searchParams }: RapportRouteProps) {
@@ -16,6 +16,7 @@ export default async function RapportRoute({ searchParams }: RapportRouteProps) 
       naam={params?.n ?? ""}
       email={params?.e ?? ""}
       answers={answers ?? []}
+      skipLead={params?.skip === "1"}
     />
   );
 }

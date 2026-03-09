@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import emailjs from "@emailjs/browser";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { bepaalArchetype } from "@/lib/archetypes";
 import { encodeAnswersToV } from "@/lib/report-url";
 import { kwadrantLabels, kwadrantSubtitels, rapportCopy, vraagLabels } from "@/lib/copy";
@@ -282,19 +282,19 @@ function contextZin(varianten, kwadrantScore) {
   return varianten.hoog;
 }
 
-function vraagNummerMetLaagsteScore(kwadrant, vragen) {
+function vraagNummerMetHoogsteScore(kwadrant, vragen) {
   const start = kwadrantVraagStart[kwadrant];
-  const laagsteScore = Math.min(...vragen);
-  const indexBinnenKwadrant = vragen.findIndex((v) => v === laagsteScore);
+  const hoogsteScore = Math.max(...vragen);
+  const indexBinnenKwadrant = vragen.findIndex((v) => v === hoogsteScore);
   const vraagNummer = start + Math.max(indexBinnenKwadrant, 0);
-  return { vraagNummer, laagsteScore };
+  return { vraagNummer, hoogsteScore };
 }
 
 function watSpeeltHierVoorKwadrant(kwadrant, vragen, kwadrantScore) {
-  const { vraagNummer } = vraagNummerMetLaagsteScore(kwadrant, vragen);
+  const { vraagNummer, hoogsteScore } = vraagNummerMetHoogsteScore(kwadrant, vragen);
   const varianten = watSpeeltPerVraag[vraagNummer];
   if (!varianten) return "Dit thema is kansrijk om verder te versterken in jullie volgende teamweek.";
-  return contextZin(varianten, kwadrantScore);
+  return contextZin(varianten, hoogsteScore ?? kwadrantScore);
 }
 
 function QuinnWiel({ scores, size = 280, animated = true }) {
@@ -416,8 +416,8 @@ function RapportSectie({ kwadrant, data }) {
   const tip = tips[kwadrant];
   const sl = scoreLabel(data.score);
   const watSpeeltHier = watSpeeltHierVoorKwadrant(kwadrant, data.vragen, data.score);
-  const { vraagNummer, laagsteScore } = vraagNummerMetLaagsteScore(kwadrant, data.vragen);
-  const laagsteVraagLabel = vraagLabels[`V${vraagNummer}`] ?? `Vraag ${vraagNummer}`;
+  const { vraagNummer, hoogsteScore } = vraagNummerMetHoogsteScore(kwadrant, data.vragen);
+  const hoogsteVraagLabel = vraagLabels[`V${vraagNummer}`] ?? `Vraag ${vraagNummer}`;
 
   return (
     <div className="mb-8 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
@@ -468,11 +468,9 @@ function RapportSectie({ kwadrant, data }) {
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Wat speelt hier</div>
             <p className="text-gray-700 text-sm font-medium">{watSpeeltHier}</p>
-            {data.score < 7 && (
-              <p className="mt-2 text-xs text-gray-500">
-                De laagste score binnen dit kwadrant: {laagsteVraagLabel} ({laagsteScore})
-              </p>
-            )}
+            <p className="mt-2 text-xs text-gray-500">
+              De hoogste score binnen dit kwadrant: {hoogsteVraagLabel} ({hoogsteScore})
+            </p>
           </div>
         </div>
       </div>
@@ -481,14 +479,16 @@ function RapportSectie({ kwadrant, data }) {
 }
 
 /**
- * @param {{ scores?: ResultaatScores | null, naam?: string, email?: string, answers?: number[] }} props
+ * @param {{ scores?: ResultaatScores | null, naam?: string, email?: string, answers?: number[], skipLead?: boolean }} props
  */
-export default function ResultaatPagina({ scores = null, naam = "", email = "", answers = [] }) {
+export default function ResultaatPagina({ scores = null, naam = "", email = "", answers = [], skipLead = false }) {
   const veiligeScores = scores ?? defaultScores;
   const [emailVerzonden, setEmailVerzonden] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [emailInput, setEmailInput] = useState(email ?? "");
   const [mailError, setMailError] = useState("");
   const [toonBoekFallback, setToonBoekFallback] = useState(false);
+  const adminMailSentRef = useRef(false);
 
   const sterk = sterksteKwadrant(veiligeScores);
   const zwak = zwaksteKwadrant(veiligeScores);
@@ -544,28 +544,62 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
         ...veiligeScores.missie.vragen.map((v, i) => `${vraagLabels[`V${i + 10}`]}: ${v}`),
       ].join("\n");
 
+  const rapportVolgorde = Object.keys(veiligeScores).sort((a, b) => veiligeScores[a].score - veiligeScores[b].score);
+  const kwadrantRapportVolledig = rapportVolgorde
+    .map((key) => {
+      const data = veiligeScores[key];
+      const watSpeeltHier = watSpeeltHierVoorKwadrant(key, data.vragen, data.score);
+      const { vraagNummer, hoogsteScore } = vraagNummerMetHoogsteScore(key, data.vragen);
+      const hoogsteVraagLabel = vraagLabels[`V${vraagNummer}`] ?? `Vraag ${vraagNummer}`;
+      return `${data.label}\n- Inzicht: ${tips[key].lang}\n- Wat speelt hier: ${watSpeeltHier}\n- De hoogste score binnen dit kwadrant: ${hoogsteVraagLabel} (${hoogsteScore})`;
+    })
+    .join("\n\n");
+
+  const quadrantSummary = [
+    `${veiligeScores.samenwerking.label}: ${veiligeScores.samenwerking.score.toFixed(1)}`,
+    `${veiligeScores.praktijk.label}: ${veiligeScores.praktijk.score.toFixed(1)}`,
+    `${veiligeScores.strategie.label}: ${veiligeScores.strategie.score.toFixed(1)}`,
+    `${veiligeScores.missie.label}: ${veiligeScores.missie.score.toFixed(1)}`,
+  ].join("\n");
+
+  const signaalKracht = `${veiligeScores[sterk[0]].label}: ${tips[sterk[0]].kort}`;
+  const signaalGroeikans = `${veiligeScores[zwak[0]].label}: ${tips[zwak[0]].kort}`;
+  const signaalOpvallend = `${veiligeScores[verr[0]].label}: scoort ${verr[1].score.toFixed(1)} - ${Math.abs(verr[1].score - gem) > 1.5 ? "opvallend afwijkend van jullie gemiddelde." : "iets om in de gaten te houden."}`;
+
+  async function sendAdminMail() {
+    if (adminMailSentRef.current) return;
+    adminMailSentRef.current = true;
+    await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_ADMIN_TEMPLATE_ID,
+      {
+        participant_name: naam || "Onbekend",
+        participant_email: emailInput || "Niet ingevuld (skip)",
+        rapport_link: rapportLink,
+        quadrant_scores: quadrantSummary,
+        strongest_quadrant: veiligeScores[sterk[0]].label,
+        admin_email: ADMIN_EMAIL,
+        answers: antwoordenSamenvatting,
+        archetype_top1_naam: archetypeTop3[0].naam,
+        archetype_tip_titel: actieveArchetypeTip.titel,
+        archetype_tip_tekst: actieveArchetypeTip.tip,
+        archetype_tip_bron: actieveArchetypeTip.bron,
+        archetype_top2_naam: archetypeTop3[1].naam,
+        archetype_top3_naam: archetypeTop3[2].naam,
+        archetype_zekerheid: `${zekerheid}%`,
+        archetype_default_waarschuwing: defaultWaarschuwing,
+        laag1_samenvatting: laag1Samenvatting,
+        laag2_samenvatting: laag2Samenvatting,
+        laag3_samenvatting: laag3Samenvatting,
+        kwadrant_rapport_volledig: kwadrantRapportVolledig,
+      },
+      { publicKey: EMAILJS_PUBLIC_KEY },
+    );
+  }
+
   async function handleRapportAanvragen() {
     setMailError("");
-    const quadrantSummary = [
-      `${veiligeScores.samenwerking.label}: ${veiligeScores.samenwerking.score.toFixed(1)}`,
-      `${veiligeScores.praktijk.label}: ${veiligeScores.praktijk.score.toFixed(1)}`,
-      `${veiligeScores.strategie.label}: ${veiligeScores.strategie.score.toFixed(1)}`,
-      `${veiligeScores.missie.label}: ${veiligeScores.missie.score.toFixed(1)}`,
-    ].join("\n");
-    const rapportVolgorde = Object.keys(veiligeScores).sort((a, b) => veiligeScores[a].score - veiligeScores[b].score);
-    const kwadrantRapportVolledig = rapportVolgorde
-      .map((key) => {
-        const data = veiligeScores[key];
-        const watSpeeltHier = watSpeeltHierVoorKwadrant(key, data.vragen, data.score);
-        const { vraagNummer, laagsteScore } = vraagNummerMetLaagsteScore(key, data.vragen);
-        const laagsteVraagLabel = vraagLabels[`V${vraagNummer}`] ?? `Vraag ${vraagNummer}`;
-        return `${data.label}\n- Inzicht: ${tips[key].lang}\n- Wat speelt hier: ${watSpeeltHier}${data.score < 7 ? `\n- De laagste score binnen dit kwadrant: ${laagsteVraagLabel} (${laagsteScore})` : ""}`;
-      })
-      .join("\n\n");
-
-    const signaalKracht = `${veiligeScores[sterk[0]].label}: ${tips[sterk[0]].kort}`;
-    const signaalGroeikans = `${veiligeScores[zwak[0]].label}: ${tips[zwak[0]].kort}`;
-    const signaalOpvallend = `${veiligeScores[verr[0]].label}: scoort ${verr[1].score.toFixed(1)} - ${Math.abs(verr[1].score - gem) > 1.5 ? "opvallend afwijkend van jullie gemiddelde." : "iets om in de gaten te houden."}`;
+    setIsSendingEmail(true);
 
     try {
       await emailjs.send(
@@ -606,40 +640,26 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
         { publicKey: EMAILJS_PUBLIC_KEY },
       );
 
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_ADMIN_TEMPLATE_ID,
-        {
-          participant_name: naam,
-          participant_email: emailInput,
-          rapport_link: rapportLink,
-          quadrant_scores: quadrantSummary,
-          strongest_quadrant: veiligeScores[sterk[0]].label,
-          admin_email: ADMIN_EMAIL,
-          answers: antwoordenSamenvatting,
-          archetype_top1_naam: archetypeTop3[0].naam,
-          archetype_tip_titel: actieveArchetypeTip.titel,
-          archetype_tip_tekst: actieveArchetypeTip.tip,
-          archetype_tip_bron: actieveArchetypeTip.bron,
-          archetype_top2_naam: archetypeTop3[1].naam,
-          archetype_top3_naam: archetypeTop3[2].naam,
-          archetype_zekerheid: `${zekerheid}%`,
-          archetype_default_waarschuwing: defaultWaarschuwing,
-          laag1_samenvatting: laag1Samenvatting,
-          laag2_samenvatting: laag2Samenvatting,
-          laag3_samenvatting: laag3Samenvatting,
-          kwadrant_rapport_volledig: kwadrantRapportVolledig,
-        },
-        { publicKey: EMAILJS_PUBLIC_KEY },
-      );
+      await sendAdminMail();
 
       setEmailVerzonden(true);
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       setMailError(msg);
       setEmailVerzonden(false);
+    } finally {
+      setIsSendingEmail(false);
     }
   }
+
+  useEffect(() => {
+    if (!skipLead || adminMailSentRef.current) return;
+    sendAdminMail().catch((error) => {
+      const msg = error instanceof Error ? error.message : String(error);
+      setMailError(msg);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skipLead]);
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -648,12 +668,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
           <div className="flex items-center gap-2">
             <Image src="/logo.png" alt="Uiterwaarden" width={120} height={40} className="object-contain" />
           </div>
-          <div className="flex items-center gap-4">
-            <a href="/uitleg" className="text-xs text-gray-500 hover:text-gray-700 transition-colors">
-              {rapportCopy.uitlegLink}
-            </a>
-            <div className="text-xs text-gray-400">Positieve Organisatie Scan</div>
-          </div>
+          <div className="text-xs text-gray-400">Positieve Organisatie Scan</div>
         </div>
       </header>
 
@@ -683,10 +698,10 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
               <strong>Valkuil:</strong> {beste.risico}
             </p>
             <div className="h-4" />
-            <div className="inline-flex rounded-full bg-white/20 border border-white/30 px-3 py-1.5 text-xs text-white">
+            <div className="inline-flex rounded-full bg-white border border-white/40 px-3 py-1.5 text-xs text-slate-700">
               Dit profiel herkennen we vaak bij: {beste.herkenbaar}
             </div>
-            <div className="mt-4 inline-flex rounded-full px-3 py-1 text-xs font-semibold bg-white text-gray-800">
+            <div className="mt-4 inline-flex rounded-full px-3 py-1 text-xs font-semibold border border-white/40 text-white/90">
               {zekerheidTekst}
             </div>
             {archetypeResultaat.isDefaultIngevuld && (
@@ -819,7 +834,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
               {rapportCopy.alternatieveProfielenSubtitel}
             </h3>
             <p className="text-sm text-gray-600 mt-2">
-              {rapportCopy.alternatieveProfielenIntro} <strong>{beste.naam}</strong>.
+              Naast jullie hoofdprofiel <strong>{beste.naam}</strong> zijn er twee andere typeringen waar jullie team zich mogelijk ook in herkent.
             </p>
             <div className="mt-3 grid gap-3">
               <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-700">
@@ -875,8 +890,14 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
                       className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 bg-white"
                       style={{ "--tw-ring-color": brand.groen }}
                     />
-                    <button onClick={handleRapportAanvragen} className="px-5 py-3 rounded-xl text-white text-sm font-bold flex-shrink-0 hover:opacity-90 transition-opacity" style={{ background: brand.groen }}>
-                      Mail mijn rapport
+                    <button
+                      onClick={handleRapportAanvragen}
+                      disabled={isSendingEmail}
+                      className="px-5 py-3 rounded-xl text-white text-sm font-bold flex-shrink-0 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                      style={{ background: brand.groen }}
+                    >
+                      {isSendingEmail && <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />}
+                      {isSendingEmail ? "Versturen..." : "Mail mijn rapport"}
                     </button>
                   </div>
                   {mailError && <p className="text-xs text-red-600 break-all">EmailJS fout: {mailError}</p>}
