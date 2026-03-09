@@ -724,7 +724,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
                   </div>
                 ) : (
                   <Image
-                    src="/images/boekje.png"
+                    src="/images/voorkant-ebook-25-tips-positief-leiderschap.png"
                     alt="Cover van 25 Krachtige Acties voor Positief Leiderschap"
                     width={96}
                     height={140}
