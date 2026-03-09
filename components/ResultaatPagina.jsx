@@ -5,6 +5,7 @@ import emailjs from "@emailjs/browser";
 import { useState, useEffect } from "react";
 import { bepaalArchetype } from "@/lib/archetypes";
 import { encodeAnswersToV } from "@/lib/report-url";
+import { kwadrantLabels, kwadrantSubtitels, rapportCopy, vraagLabels } from "@/lib/copy";
 
 const EMAILJS_SERVICE_ID = (process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "").trim();
 const EMAILJS_USER_TEMPLATE_ID = (process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_USER ?? "").trim();
@@ -40,10 +41,10 @@ const kwadrantLicht = {
 };
 
 const defaultScores = {
-  samenwerking: { label: "Samenwerking", score: 0, vragen: [0, 0, 0] },
-  praktijk: { label: "Praktijk", score: 0, vragen: [0, 0, 0] },
-  strategie: { label: "Strategie & Basis op orde", score: 0, vragen: [0, 0, 0] },
-  missie: { label: "Missie & Zingeving", score: 0, vragen: [0, 0, 0] },
+  samenwerking: { label: kwadrantLabels.samenwerking, score: 0, vragen: [0, 0, 0] },
+  praktijk: { label: kwadrantLabels.praktijk, score: 0, vragen: [0, 0, 0] },
+  strategie: { label: kwadrantLabels.strategie, score: 0, vragen: [0, 0, 0] },
+  missie: { label: kwadrantLabels.missie, score: 0, vragen: [0, 0, 0] },
 };
 /**
  * @typedef {{
@@ -75,21 +76,6 @@ const vraagTitels = [
   "Sterke kanten benutten",
   "Blik naar buiten",
 ];
-
-const vraagLabels = {
-  V1: "Kwetsbaarheid",
-  V2: "Collectieve draagkracht",
-  V3: "Energie & plezier",
-  V4: "Spelregels & insluiting",
-  V5: "Vergaderdynamiek",
-  V6: "Sturing & ruimte",
-  V7: "Heldere kaders",
-  V8: "Rolverdeling",
-  V9: "Eigenaarschap",
-  V10: "Hoger doel",
-  V11: "Sterke kanten",
-  V12: "Blik naar buiten",
-};
 
 const archetypeTips = {
   positieve_organisatie: {
@@ -217,7 +203,7 @@ const tips = {
   },
   strategie: {
     kort: "Floreren vraagt om een stevige basis: heldere doelen, duidelijke rollen.",
-    lang: "Teams die lager scoren op Strategie & Basis op orde hebben vaak niet te weinig ambitie, maar te weinig helderheid. Wie is waarvoor verantwoordelijk? Waaraan meten we succes?",
+    lang: "Teams die lager scoren op Koers & Resultaat hebben vaak niet te weinig ambitie, maar te weinig helderheid. Wie is waarvoor verantwoordelijk? Waaraan meten we succes?",
     actie: "Maak samen een 'wie doet wat'-overzicht voor de komende maand.",
   },
   missie: {
@@ -664,7 +650,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
           </div>
           <div className="flex items-center gap-4">
             <a href="/uitleg" className="text-xs text-gray-500 hover:text-gray-700 transition-colors">
-              Hoe werkt de scan?
+              {rapportCopy.uitlegLink}
             </a>
             <div className="text-xs text-gray-400">Positieve Organisatie Scan</div>
           </div>
@@ -685,7 +671,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
 
           <div className="rounded-3xl p-6 mb-5" style={{ background: dominanteKleur }}>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] mb-2 text-white/80">
-              Jouw team past het meest bij
+              {rapportCopy.archetypeIntroBadge}
             </p>
             <h2 className="text-[38px] font-bold text-white leading-tight" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
               {beste.naam}
@@ -710,7 +696,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
             )}
             <div className="mt-4 rounded-xl bg-white/15 border border-white/30 px-3 py-2">
               <p className="text-xs text-white/90">
-                Top 3 passende organisatietypen: <strong>1.</strong> {beste.naam} · <strong>2.</strong> {runner1.naam} · <strong>3.</strong> {runner2.naam}
+                {rapportCopy.archetypeTop3Label} <strong>1.</strong> {beste.naam} · <strong>2.</strong> {runner1.naam} · <strong>3.</strong> {runner2.naam}
               </p>
             </div>
           </div>
@@ -774,7 +760,12 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
                 return (
                   <div key={key}>
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-sm font-semibold text-gray-700">{data.label}</span>
+                      <div>
+                        <span className="text-sm font-semibold text-gray-700">{data.label}</span>
+                        {key === "praktijk" && (
+                          <p className="text-[11px] text-gray-400 mt-0.5">{kwadrantSubtitels.praktijk}</p>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: kwadrantLicht[key], color: kleur }}>
                           {sl.icon ? `${sl.icon} ${sl.label}` : sl.label}
@@ -793,7 +784,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
 
           <div className="space-y-3 mb-6">
             <SignaalKaart type="Jullie kracht" titel={veiligeScores[sterk[0]].label} tekst={tips[sterk[0]].kort} kleur={kwadrantKleuren[sterk[0]]} licht={kwadrantLicht[sterk[0]]} icon="✦" />
-            <SignaalKaart type="Groeikans" titel={veiligeScores[zwak[0]].label} tekst={tips[zwak[0]].kort} kleur={kwadrantKleuren[zwak[0]]} licht={kwadrantLicht[zwak[0]]} icon="↗" />
+            <SignaalKaart type={rapportCopy.groeikansLabel} titel={veiligeScores[zwak[0]].label} tekst={tips[zwak[0]].kort} kleur={kwadrantKleuren[zwak[0]]} licht={kwadrantLicht[zwak[0]]} icon="↗" />
             <SignaalKaart
               type="Opvallend signaal"
               titel={veiligeScores[verr[0]].label}
@@ -806,7 +797,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
 
           <div className="bg-gray-50 rounded-2xl p-4 mb-6 text-center border border-gray-100">
             <p className="text-gray-500 text-xs leading-relaxed">
-              <span className="font-semibold text-gray-700">Een 10 is niet het doel.</span> Een gebalanceerd team floreert.
+              <span className="font-semibold text-gray-700">Een 10 is niet het doel.</span> {rapportCopy.balansZin}
             </p>
           </div>
         </div>
@@ -823,12 +814,12 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
           ))}
 
           <div className="rounded-2xl border border-gray-200 bg-white p-5 mb-6">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Alternatieve profielen</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">{rapportCopy.alternatieveProfielenTitel}</p>
             <h3 className="text-xl font-bold text-gray-800" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
-              Top 2 en 3 passende types bij jouw scan
+              {rapportCopy.alternatieveProfielenSubtitel}
             </h3>
             <p className="text-sm text-gray-600 mt-2">
-              Naast jullie hoofdprofiel <strong>{beste.naam}</strong> zijn er twee andere typeringen waar jullie team zich mogelijk ook in herkent.
+              {rapportCopy.alternatieveProfielenIntro} <strong>{beste.naam}</strong>.
             </p>
             <div className="mt-3 grid gap-3">
               <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-700">
@@ -851,7 +842,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
               Sparren over jullie uitslag?
             </h3>
             <p className="text-sm text-gray-700 leading-relaxed">
-              Inbegrepen bij deze scan: een korte kennismaking met een van onze coaches. 20 minuten, geen agenda, geen verkooppraatje. We bekijken samen wat jullie profiel zegt en wat een zinvolle eerste stap zou zijn.
+              {rapportCopy.sparringBody}
             </p>
             <a
               href="mailto:team@uiterwaarden.com?subject=Scan-reflectie%20aanvragen&body=Hoi%2C%20ik%20wil%20graag%20een%20sparring%20sessie%20inplannen%20naar%20aanleiding%20van%20mijn%20Positieve%20Organisatie%20Scan."

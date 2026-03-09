@@ -1,3 +1,5 @@
+import { kwadrantLabels } from "@/lib/copy";
+
 export const QUESTION_COUNT = 12;
 
 export type ScorePayload = {
@@ -32,9 +34,9 @@ export function buildScoresFromAnswers(answers: number[]): ScorePayload {
     values.length ? Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(1)) : 0;
 
   return {
-    samenwerking: { label: "Samenwerking", score: avg(samenwerking), vragen: samenwerking },
-    praktijk: { label: "Praktijk", score: avg(praktijk), vragen: praktijk },
-    strategie: { label: "Strategie & Basis op orde", score: avg(strategie), vragen: strategie },
-    missie: { label: "Missie & Zingeving", score: avg(missie), vragen: missie },
+    samenwerking: { label: kwadrantLabels.samenwerking, score: avg(samenwerking), vragen: samenwerking },
+    praktijk: { label: kwadrantLabels.praktijk, score: avg(praktijk), vragen: praktijk },
+    strategie: { label: kwadrantLabels.strategie, score: avg(strategie), vragen: strategie },
+    missie: { label: kwadrantLabels.missie, score: avg(missie), vragen: missie },
   };
 }

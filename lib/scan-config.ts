@@ -36,13 +36,13 @@ export const quadrants: Quadrant[] = [
   {
     id: "praktijk",
     name: "Praktijk",
-    subtitle: "Intern & Beheerst",
+    subtitle: "Spelregels · Inbreng · Initiatief",
     feedback:
       "Jullie blinken uit in dagelijkse samenwerking: duidelijke werkafspraken en betrokkenheid helpen om stabiel te presteren.",
   },
   {
     id: "strategie-basis",
-    name: "Strategie & Basis op orde",
+    name: "Koers & Resultaat",
     subtitle: "Extern & Beheerst",
     feedback:
       "Jullie hebben een sterke basis: heldere doelen, eigenaarschap en rolverdeling zorgen voor resultaatgericht werken.",
