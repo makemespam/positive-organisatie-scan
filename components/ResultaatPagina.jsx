@@ -629,7 +629,7 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
               </div>
               <div className="hidden sm:block flex-shrink-0">
                 <Image
-                  src="/voorkant-ebook-25-tips-positief-leiderschap.png"
+                  src="/voorkant%20ebook%2025%20tips%20positief%20leiderschap.png"
                   alt="Cover van 25 Krachtige Acties voor Positief Leiderschap"
                   width={96}
                   height={140}
