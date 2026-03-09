@@ -3,6 +3,7 @@
 import Image from "next/image";
 import emailjs from "@emailjs/browser";
 import { useState, useEffect, useRef } from "react";
+import { bepaalArchetype } from "@/lib/archetypes";
 
 const EMAILJS_SERVICE_ID = (process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "").trim();
 const EMAILJS_USER_TEMPLATE_ID = (process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_USER ?? "").trim();
@@ -43,6 +44,14 @@ const defaultScores = {
   strategie: { label: "Strategie & Basis op orde", score: 0, vragen: [0, 0, 0] },
   missie: { label: "Missie & Zingeving", score: 0, vragen: [0, 0, 0] },
 };
+/**
+ * @typedef {{
+ * samenwerking: { label: string, score: number, vragen: number[] },
+ * praktijk: { label: string, score: number, vragen: number[] },
+ * strategie: { label: string, score: number, vragen: number[] },
+ * missie: { label: string, score: number, vragen: number[] },
+ * }} ResultaatScores
+ */
 
 const kwadrantVraagStart = {
   samenwerking: 1,
@@ -271,6 +280,9 @@ function RapportSectie({ kwadrant, data }) {
   );
 }
 
+/**
+ * @param {{ scores?: ResultaatScores | null, naam?: string, email?: string }} props
+ */
 export default function ResultaatPagina({ scores = null, naam = "", email = "" }) {
   const veiligeScores = scores ?? defaultScores;
   const [laag, setLaag] = useState(1);
@@ -284,6 +296,30 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "" }
   const verr = verrassingKwadrant(veiligeScores);
   const gem = gemiddelde(veiligeScores);
   const gemSl = scoreLabel(gem);
+  const archetypeResultaat = bepaalArchetype({
+    samenwerking: veiligeScores.samenwerking.score,
+    praktijk: veiligeScores.praktijk.score,
+    strategie: veiligeScores.strategie.score,
+    missie: veiligeScores.missie.score,
+  });
+  const { beste, runner1, runner2, zekerheid } = archetypeResultaat;
+
+  const bepaalArchetypeKleur = () => {
+    const ideaal = beste?.ideaal ?? {};
+    const top = Object.entries(ideaal).sort((a, b) => b[1] - a[1])[0]?.[0];
+    if (top === "s") return { kleur: brand.groen, licht: kwadrantLicht.samenwerking };
+    if (top === "p") return { kleur: brand.blauw, licht: kwadrantLicht.praktijk };
+    if (top === "st") return { kleur: brand.donkerrood, licht: kwadrantLicht.strategie };
+    return { kleur: brand.oranje, licht: kwadrantLicht.missie };
+  };
+
+  const archetypeStijl = bepaalArchetypeKleur();
+  const zekerheidTekst =
+    zekerheid > 70
+      ? "Duidelijke match"
+      : zekerheid >= 40
+        ? "Sterke match"
+        : `Jullie zijn onderweg - je zit op de grens van ${beste.naam} en ${runner1.naam}`;
 
   async function handleRapportAanvragen() {
     setMailError("");
@@ -349,6 +385,25 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "" }
               {naam ? `Goed gedaan, ${naam}` : "Jouw team in beeld"}
             </h1>
             <p className="text-gray-500 text-sm">Momentopname van de afgelopen week · {new Date().toLocaleDateString("nl-NL", { day: "numeric", month: "long" })}</p>
+          </div>
+
+          <div className="rounded-3xl border p-5 mb-5" style={{ borderColor: archetypeStijl.kleur, background: archetypeStijl.licht }}>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: archetypeStijl.kleur }}>
+              Jouw team past het meest bij
+            </p>
+            <h2 className="text-3xl font-bold text-gray-800 leading-tight" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
+              {beste.naam}
+            </h2>
+            <p className="mt-2 text-sm italic text-gray-700">{beste.tagline}</p>
+            <p className="mt-2 text-xs text-gray-500">{beste.risico}</p>
+            <div className="mt-4 inline-flex rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "white", color: archetypeStijl.kleur }}>
+              {zekerheidTekst}
+            </div>
+            {zekerheid < 60 && (
+              <p className="mt-3 text-xs text-gray-500">
+                Runners-up: {runner1.naam} · {runner2.naam}
+              </p>
+            )}
           </div>
 
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-5">

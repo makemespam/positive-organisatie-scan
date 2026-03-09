@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { getAnchorForScore, quadrants, questions } from "@/lib/scan-config";
 
@@ -10,6 +11,13 @@ type Step = "welcome" | "questions" | "lead";
 type Lead = {
   name: string;
   email: string;
+};
+
+const brand = {
+  oranje: "#f79648",
+  donkerrood: "#c86059",
+  blauw: "#314a7b",
+  groen: "#006d82",
 };
 
 export default function Home() {
@@ -69,14 +77,20 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 sm:px-6">
-      <main className="mx-auto w-full max-w-3xl rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
+    <div className="min-h-screen bg-gray-50 text-slate-900">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+          <Image src="/logo.png" alt="Uiterwaarden" width={120} height={40} className="object-contain" />
+          <div className="text-xs text-gray-400">Positieve Organisatie Scan</div>
+        </div>
+      </header>
+      <main className="mx-auto w-full max-w-2xl rounded-3xl border border-gray-100 bg-white p-5 shadow-sm mt-6 mb-8 sm:p-8">
         {step === "welcome" && (
           <section className="space-y-6">
-            <div className="inline-flex rounded-full bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700">
+            <div className="inline-flex rounded-full px-3 py-1 text-sm font-medium" style={{ background: "#e8f4f0", color: brand.groen }}>
               Positieve Organisatie Scan
             </div>
-            <h1 className="text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
+            <h1 className="text-3xl font-bold leading-tight text-slate-900 sm:text-4xl" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>
               In 5 minuten inzicht in waar jullie team floreert
             </h1>
             <p className="text-base leading-relaxed text-slate-600 sm:text-lg">
@@ -91,7 +105,8 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setStep("questions")}
-              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-sky-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 text-base font-semibold text-white transition focus:outline-none focus-visible:ring-2"
+              style={{ background: `linear-gradient(135deg, ${brand.groen}, ${brand.blauw})` }}
             >
               Start de scan
             </button>
@@ -109,10 +124,11 @@ export default function Home() {
               </div>
               <div className="h-2 rounded-full bg-slate-200">
                 <motion.div
-                  className="h-full rounded-full bg-sky-500"
+                  className="h-full rounded-full"
                   initial={false}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.35 }}
+                  style={{ background: brand.groen }}
                 />
               </div>
             </div>
@@ -127,16 +143,16 @@ export default function Home() {
                 className="space-y-5"
               >
                 <div className="space-y-3">
-                  <p className="text-sm font-medium uppercase tracking-wide text-sky-700">
+                  <p className="text-sm font-medium uppercase tracking-wide" style={{ color: brand.groen }}>
                     {currentQuestion.id} · {quadrants.find((item) => item.id === currentQuestion.quadrantId)?.name}
                   </p>
-                  <h2 className="text-2xl font-semibold text-slate-900">{currentQuestion.title}</h2>
+                  <h2 className="text-2xl font-semibold text-slate-900" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>{currentQuestion.title}</h2>
                   <p className="leading-relaxed text-slate-600">{currentQuestion.prompt}</p>
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
                   <label htmlFor="score" className="mb-3 block text-sm font-medium text-slate-700">
-                    Jouw score: <span className="font-semibold text-sky-700">{currentScore}</span>
+                    Jouw score: <span className="font-semibold" style={{ color: brand.groen }}>{currentScore}</span>
                   </label>
                   <input
                     id="score"
@@ -148,13 +164,14 @@ export default function Home() {
                       const newValue = Number(event.target.value);
                       setAnswers((prev) => prev.map((score, index) => (index === currentQuestionIndex ? newValue : score)));
                     }}
-                    className="h-4 w-full cursor-pointer accent-sky-600"
+                    className="h-4 w-full cursor-pointer"
+                    style={{ accentColor: brand.groen }}
                   />
-                  <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50 p-3">
-                    <p className="text-sm font-semibold text-sky-800">
+                  <div className="mt-4 rounded-xl border p-3" style={{ borderColor: "#c8dae5", background: "#eef5f8" }}>
+                    <p className="text-sm font-semibold" style={{ color: brand.blauw }}>
                       Betekenis bij score {currentAnchor.label}
                     </p>
-                    <p className="mt-1 text-sm text-sky-700">{currentAnchor.text}</p>
+                    <p className="mt-1 text-sm" style={{ color: brand.blauw }}>{currentAnchor.text}</p>
                   </div>
                 </div>
 
@@ -170,7 +187,8 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={handleNextQuestion}
-                    className="inline-flex min-h-12 items-center justify-center rounded-xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
+                    className="inline-flex min-h-12 items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold text-white transition"
+                    style={{ background: brand.groen }}
                   >
                     {currentQuestionIndex === questions.length - 1 ? "Naar je resultaat" : "Volgende"}
                   </button>
@@ -182,7 +200,7 @@ export default function Home() {
 
         {step === "lead" && (
           <section className="space-y-6">
-            <h2 className="text-2xl font-semibold text-slate-900">Ontvang je resultaten en uitgebreide rapport</h2>
+            <h2 className="text-2xl font-semibold text-slate-900" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>Ontvang je resultaten en uitgebreide rapport</h2>
             <p className="text-slate-600">
               Vul je naam en e-mailadres in. Dan kun je direct door naar je scanresultaat en is de
               e-mailafhandeling voorbereid voor verzending.
@@ -222,7 +240,8 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={isSubmittingLead}
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-sky-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 text-base font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+                style={{ background: `linear-gradient(135deg, ${brand.oranje}, ${brand.donkerrood})` }}
               >
                 {isSubmittingLead ? "Bezig met verwerken..." : "Bekijk mijn resultaat"}
               </button>
