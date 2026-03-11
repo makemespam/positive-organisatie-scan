@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { getAnchorForScore, quadrants, questions } from "@/lib/scan-config";
+import { getAnchorForScore, getScoreLabel, quadrants, questions } from "@/lib/scan-config";
 import { encodeAnswersToV } from "@/lib/report-url";
 import { uitlegCopy } from "@/lib/copy";
 
@@ -32,6 +32,7 @@ export default function Home() {
 
   const currentQuestion = questions[currentQuestionIndex];
   const currentScore = answers[currentQuestionIndex];
+  const currentScoreLabel = getScoreLabel(currentScore);
   const currentAnchor = getAnchorForScore(currentScore, currentQuestion.anchors);
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
@@ -173,9 +174,11 @@ export default function Home() {
                   />
                   <div className="mt-4 rounded-xl border p-3" style={{ borderColor: "#c8dae5", background: "#eef5f8" }}>
                     <p className="text-sm font-semibold" style={{ color: brand.blauw }}>
-                      Betekenis bij score {currentAnchor.label}
+                      Betekenis
                     </p>
-                    <p className="mt-1 text-sm" style={{ color: brand.blauw }}>{currentAnchor.text}</p>
+                    <p className="mt-1 text-sm" style={{ color: brand.blauw }}>
+                      {currentScoreLabel} · {currentAnchor.text}
+                    </p>
                   </div>
                 </div>
 

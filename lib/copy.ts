@@ -4,13 +4,13 @@ export const vraagLabels: Record<string, string> = {
   V3: "Energie & plezier",
   V4: "Spelregels & insluiting",
   V5: "Vergaderdynamiek",
-  V6: "Sturing & ruimte",
+  V6: "Motivatie & eigenaarschap",
   V7: "Heldere kaders",
   V8: "Rolverdeling",
   V9: "Eigenaarschap",
   V10: "Hoger doel",
   V11: "Sterke kanten",
-  V12: "Blik naar buiten",
+  V12: "Leren & ontwikkeling",
 };
 
 export const kwadrantLabels = {
@@ -41,6 +41,6 @@ export const rapportCopy = {
 export const uitlegCopy = {
   titel: "Hoe werkt de scan?",
   toelichting:
-    "De scan is door Roeland Ramakers van Uiterwaarden gebouwd op basis van het Competing Values Framework van Robert Quinn — auteur van 'Positive Organizations', aangevuld met onze jarenlange ervaring in het begeleiden van organisaties. Het model verdeelt teamgedrag langs twee assen: intern vs. extern gericht, en flexibiliteit vs. beheersing. Samen vormen die vier kwadranten die elk even belangrijk zijn voor een florerende organisatie.",
+    "De scan is door Roeland Ramakers van Uiterwaarden gebouwd op basis van het Competing Values Framework van Robert Quinn — auteur van 'Positive Organizations', aangevuld met de jarenlange ervaring van Marga, Margriet en Joyce bij het begeleiden van organisaties. Het model verdeelt teamgedrag langs twee assen: intern vs. extern gericht, en flexibiliteit vs. beheersing. Samen vormen die vier kwadranten die elk even belangrijk zijn voor een florerende organisatie.",
   graphicPad: "/images/quinn-positieve-organisatie-scan.png",
 };
