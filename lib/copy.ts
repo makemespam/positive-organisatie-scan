@@ -41,8 +41,8 @@ export const rapportCopy = {
 export const uitlegCopy = {
   titel: "Hoe werkt de scan?",
   toelichting:
-    "De scan is gebaseerd op het werk van Robert Quinn, een van de meest invloedrijke organisatieonderzoekers van de afgelopen decennia. Zijn model — het Competing Values Framework — laat zien dat florerende organisaties niet uitblinken op één ding, maar balans vinden tussen vier kwadranten: samenwerking, dagelijkse praktijk, koers & resultaat, en missie & zingeving.
+    `De scan is gebaseerd op het werk van Robert Quinn, een van de meest invloedrijke organisatieonderzoekers van de afgelopen decennia. Zijn model — het Competing Values Framework — laat zien dat florerende organisaties niet uitblinken op een ding, maar balans vinden tussen vier kwadranten: samenwerking, dagelijkse praktijk, koers & resultaat, en missie & zingeving.
 De 12 vragen zijn ontwikkeld door Roeland, Marga, Margriet en Joyce van Uiterwaarden, op basis van jaren ervaring met het begeleiden van teams en organisaties. Ze zijn geen theoretisch instrument — ze zijn gemaakt om precies die dingen te raken die in de praktijk het verschil maken tussen een team dat functioneert en een team dat floreert.
-De uitkomst is een persoonlijke momentopname, geen eindoordeel. Een vertrekpunt voor een eerlijk gesprek.",
+De uitkomst is een persoonlijke momentopname, geen eindoordeel. Een vertrekpunt voor een eerlijk gesprek.`,
   graphicPad: "/images/quinn-positieve-organisatie-scan.png",
 };
