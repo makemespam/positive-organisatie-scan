@@ -41,8 +41,8 @@ export const archetypen: Archetype[] = [
 
   // ─── ÉÉN LAAG ──────────────────────────────────────────────────────────────
   {
-    id: "presterend_eiland",
-    naam: "Het Presterende Eiland",
+    id: "presterende_eilanden",
+    naam: "De Presterende Eilanden",
     tagline: "Jullie leveren indrukwekkende resultaten — de mens achter het werk verdient meer aandacht.",
     omschrijving:
       "Dit team weet hoe het moet presteren: processen kloppen, doelen zijn helder en de missie wordt serieus genomen. " +
@@ -69,8 +69,8 @@ export const archetypen: Archetype[] = [
     dominantKwadrant: "s",
   },
   {
-    id: "gezellig_drijfzand",
-    naam: "Het Gezellige Drijfzand",
+    id: "warme_stagnatie",
+    naam: "De Warme Stagnatie",
     tagline: "Jullie zijn een fijn team om deel van uit te maken — en jullie weten zelf ook dat er meer in zit.",
     omschrijving:
       "De verbinding in dit team is oprecht: mensen kennen elkaar, helpen elkaar en werken met plezier samen. " +
@@ -99,8 +99,8 @@ export const archetypen: Archetype[] = [
 
   // ─── TWEE LAAG ─────────────────────────────────────────────────────────────
   {
-    id: "theekransje",
-    naam: "Het Gezellige Theekransje",
+    id: "gezellige_bubbel",
+    naam: "De Gezellige Bubbel",
     tagline: "Jullie hebben een warme basis — nu richting en resultaat er nog bij.",
     omschrijving:
       "Er is échte verbinding in dit team: mensen zijn betrokken bij elkaar en de onderlinge processen zijn prettig. " +
@@ -169,8 +169,8 @@ export const archetypen: Archetype[] = [
     dominantKwadrant: "p",
   },
   {
-    id: "bureaucratische_presteerder",
-    naam: "De Bureaucratische Presteerder",
+    id: "loyale_uitvoerder",
+    naam: "De Loyale Uitvoerder",
     tagline: "Jullie leveren betrouwbaar wat gevraagd wordt — meer mag ook.",
     omschrijving:
       "Dit team is de ruggengraat van veel organisaties: processen kloppen, doelen worden gehaald en mensen doen loyaal hun werk. " +
@@ -185,8 +185,8 @@ export const archetypen: Archetype[] = [
 
   // ─── DRIE LAAG ─────────────────────────────────────────────────────────────
   {
-    id: "warm_wrak",
-    naam: "Het Warme Wrak",
+    id: "taaie_kern",
+    naam: "De Taaie Kern",
     tagline: "Jullie verbinding is oprecht en waardevol — gebruik die nu als startpunt voor herstel.",
     omschrijving:
       "Temidden van alle uitdagingen is er iets wat veel teams niet hebben: mensen die elkaar écht mogen en voor elkaar willen gaan. " +
@@ -199,8 +199,8 @@ export const archetypen: Archetype[] = [
     dominantKwadrant: "s",
   },
   {
-    id: "lege_machine",
-    naam: "De Lege Procedure-machine",
+    id: "holle_structuur",
+    naam: "De Holle Structuur",
     tagline: "De processen staan — nu alleen nog de mensen en het verhaal er achter.",
     omschrijving:
       "Er is iets solides in dit team: de structuren en procedures functioneren, en dat geeft houvast in een verder uitdagende context. " +
@@ -213,8 +213,8 @@ export const archetypen: Archetype[] = [
     dominantKwadrant: "p",
   },
   {
-    id: "eenzame_strateeg",
-    naam: "De Eenzame Strateeg",
+    id: "ongedeelde_visie",
+    naam: "De Ongedeelde Visie",
     tagline: "De richting is helder — nu het team er nog achter zien te krijgen.",
     omschrijving:
       "Er is een duidelijk doel en iemand — of een kleine groep — die weet waar het naartoe moet. " +
@@ -227,8 +227,8 @@ export const archetypen: Archetype[] = [
     dominantKwadrant: "st",
   },
   {
-    id: "bevlogen_puinhoop",
-    naam: "De Bevlogen Puinhoop",
+    id: "bevlogen_pionier",
+    naam: "De Bevlogen Pionier",
     tagline: "Jullie geloof in de zaak is indrukwekkend — nu het fundament nog.",
     omschrijving:
       "Er is iets wat niet gekopieerd kan worden: een team dat diep gelooft in wat het doet en daarvoor wil gaan. " +

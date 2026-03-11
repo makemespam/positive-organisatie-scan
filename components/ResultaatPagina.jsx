@@ -83,7 +83,7 @@ const archetypeTips = {
     tip: "Vraag jezelf elke vrijdag af: Wat gaf me deze week Vreugde, Verbinding en Vooruitgang?",
     bron: "(p.7, actie 4)",
   },
-  presterend_eiland: {
+  presterende_eilanden: {
     titel: "Erken moeite",
     tip: "Waardeer de intentie en inspanningen van je medewerker expliciet.",
     bron: "(p.10, actie 3)",
@@ -93,7 +93,7 @@ const archetypeTips = {
     tip: "Stel schaalvragen. Vraag bijvoorbeeld: op een schaal van 1-10, hoe zeker ben je?",
     bron: "(p.12)",
   },
-  gezellig_drijfzand: {
+  warme_stagnatie: {
     titel: "Begin met betekenis",
     tip: "Begin met betekenis in plaats van taken: waarom is dit project belangrijk, en voor wie?",
     bron: "(p.16)",
@@ -103,7 +103,7 @@ const archetypeTips = {
     tip: "Vraag teamleden naar een moment waarop ze echt trots waren of geraakt werden, als ingang naar zingeving.",
     bron: "(p.16)",
   },
-  theekransje: {
+  gezellige_bubbel: {
     titel: "Waardenwandeling",
     tip: "Waar werd je enthousiast van de afgelopen tijd en wat is er nodig om dat te verdubbelen?",
     bron: "(p.16)",
@@ -128,27 +128,27 @@ const archetypeTips = {
     tip: "Introduceer collegiale coaching waarbij teamleden leren waarderende vragen te stellen.",
     bron: "(p.12)",
   },
-  bureaucratische_presteerder: {
+  loyale_uitvoerder: {
     titel: "Intentie",
     tip: "Begin je dag met een intentie: hoe wil je vandaag zijn in je team, in plaats van wat je gaat doen?",
     bron: "(p.7, actie 1)",
   },
-  warm_wrak: {
+  taaie_kern: {
     titel: "Positieve uitzondering",
     tip: "Ga in je team geregeld op zoek naar een positieve uitzondering. Ontdek wat er in deze uitzondering verborgen ligt waar het team meer van wil in de toekomst.",
     bron: "(p.14, actie 2)",
   },
-  lege_machine: {
+  holle_structuur: {
     titel: "Check-in + Eigen houding",
     tip: "Wees in je team open over wat je intentie was, wat er anders is gegaan en wat je ervan hebt geleerd zonder jezelf te veroordelen.",
     bron: "(p.11, actie 5)",
   },
-  eenzame_strateeg: {
+  ongedeelde_visie: {
     titel: "Collegiale coaching + open vragen",
     tip: "Introduceer collegiale coaching en begeleid de volgende stap door te vragen: Wat zie jij als de volgende stap?",
     bron: "(p.12)",
   },
-  bevlogen_puinhoop: {
+  bevlogen_pionier: {
     titel: "Turbo brainstorm",
     tip: "Heb je een probleem te pakken? Stop met analyseren en ga creeren. Zet een stopwatch op 5 minuten.",
     bron: "(p.14, actie 3)",
