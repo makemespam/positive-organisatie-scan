@@ -13,6 +13,7 @@ type Step = "welcome" | "questions" | "lead";
 type Lead = {
   name: string;
   email: string;
+  nieuwsbriefAkkoord: boolean;
 };
 
 const brand = {
@@ -27,8 +28,9 @@ export default function Home() {
   const [step, setStep] = useState<Step>("welcome");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<number[]>(Array.from({ length: questions.length }, () => 5));
-  const [lead, setLead] = useState<Lead>({ name: "", email: "" });
+  const [lead, setLead] = useState<Lead>({ name: "", email: "", nieuwsbriefAkkoord: false });
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   const currentQuestion = questions[currentQuestionIndex];
   const currentScore = answers[currentQuestionIndex];
@@ -51,18 +53,22 @@ export default function Home() {
   const handleLeadSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmittingLead(true);
+    setEmailError("");
+
+    const email = lead.email.trim();
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!isValidEmail) {
+      setEmailError("E-mailadres is verplicht en moet geldig zijn.");
+      setIsSubmittingLead(false);
+      return;
+    }
+
     const v = encodeAnswersToV(answers);
     const n = encodeURIComponent(lead.name);
-    const e = encodeURIComponent(lead.email);
+    const e = encodeURIComponent(email);
 
     setIsSubmittingLead(false);
     router.push(`/rapport?v=${v}&n=${n}&e=${e}`);
-  };
-
-  const handleSkipLead = () => {
-    const v = encodeAnswersToV(answers);
-    const n = encodeURIComponent(lead.name);
-    router.push(`/rapport?v=${v}&n=${n}&skip=1`);
   };
 
   return (
@@ -86,6 +92,10 @@ export default function Home() {
               Deze scan is een korte, positieve momentopname van de afgelopen week. Er zijn geen goede
               of foute antwoorden: je ontdekt waar energie zit en waar groeikansen liggen.
             </p>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              Om mee te doen vul je na de vragen je e-mailadres in. Je ontvangt dan je rapport en wordt
+              geabonneerd op de Uiterwaarden Nieuwsbrief (ongeveer 1x per maand, afmelden kan altijd).
+            </div>
             <ul className="space-y-2 rounded-2xl bg-slate-100 p-4 text-sm text-slate-700">
               <li>12 vragen verdeeld over 4 kwadranten</li>
               <li>Slider van 1 tot 10 met duidelijke betekenis per score</li>
@@ -209,8 +219,8 @@ export default function Home() {
           <section className="space-y-6">
             <h2 className="text-2xl font-semibold text-slate-900" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>Ontvang je resultaten en uitgebreide rapport</h2>
             <p className="text-slate-600">
-              Vul je naam en e-mailadres in. Dan kun je direct door naar je scanresultaat en is de
-              e-mailafhandeling voorbereid voor verzending.
+              Vul je naam en e-mailadres in. Met deelname ga je akkoord met inschrijving op de
+              Uiterwaarden Nieuwsbrief.
             </p>
 
             <form onSubmit={handleLeadSubmit} className="space-y-4">
@@ -238,10 +248,33 @@ export default function Home() {
                   type="email"
                   required
                   value={lead.email}
-                  onChange={(event) => setLead((prev) => ({ ...prev, email: event.target.value }))}
+                  onChange={(event) => {
+                    setLead((prev) => ({ ...prev, email: event.target.value }));
+                    if (emailError) setEmailError("");
+                  }}
                   className="min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
                   placeholder="naam@bedrijf.nl"
                 />
+                {emailError && (
+                  <p className="text-sm text-red-600">{emailError}</p>
+                )}
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <label className="flex items-start gap-3 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    required
+                    checked={lead.nieuwsbriefAkkoord}
+                    onChange={(event) => setLead((prev) => ({ ...prev, nieuwsbriefAkkoord: event.target.checked }))}
+                    className="mt-0.5 h-4 w-4 flex-shrink-0"
+                    style={{ accentColor: brand.groen }}
+                  />
+                  <span>
+                    Ik ga ermee akkoord te abonneren op de Uiterwaarden Nieuwsbrief (ongeveer 1x per
+                    maand). Ik kan me altijd afmelden.
+                  </span>
+                </label>
               </div>
 
               <button
@@ -251,13 +284,6 @@ export default function Home() {
                 style={{ background: `linear-gradient(135deg, ${brand.oranje}, ${brand.donkerrood})` }}
               >
                 {isSubmittingLead ? "Bezig met verwerken..." : "Bekijk mijn resultaat"}
-              </button>
-              <button
-                type="button"
-                onClick={handleSkipLead}
-                className="block text-sm text-slate-500 underline underline-offset-2 hover:text-slate-700"
-              >
-                Sla e-mail over en bekijk direct je resultaat
               </button>
             </form>
           </section>
