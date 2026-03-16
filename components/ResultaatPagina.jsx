@@ -488,7 +488,8 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
   const [emailInput, setEmailInput] = useState(email ?? "");
   const [mailError, setMailError] = useState("");
   const [toonBoekFallback, setToonBoekFallback] = useState(false);
-  const adminMailSentRef = useRef(false);
+  const autoSendDoneRef = useRef(false);
+  const adminNotifiedEmailsRef = useRef(new Set());
 
   const sterk = sterksteKwadrant(veiligeScores);
   const zwak = zwaksteKwadrant(veiligeScores);
@@ -508,10 +509,12 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
     tip: "Plan een kort teammoment om samen te bepalen wat jullie komende week als team willen versterken.",
     bron: "Bron onbekend",
   };
-  const rapportLink =
+  const buildRapportLink = (targetEmail = emailInput) => (
     answers.length === 12
-      ? `https://positive-organisatie-scan.vercel.app/rapport?v=${encodeAnswersToV(answers)}&n=${encodeURIComponent(naam)}&e=${encodeURIComponent(emailInput)}`
-      : "https://positive-organisatie-scan.vercel.app/";
+      ? `https://positive-organisatie-scan.vercel.app/rapport?v=${encodeAnswersToV(answers)}&n=${encodeURIComponent(naam)}&e=${encodeURIComponent(targetEmail)}`
+      : "https://positive-organisatie-scan.vercel.app/"
+  );
+  const rapportLink = buildRapportLink(emailInput);
 
   const dominanteKleur =
     beste.dominantKwadrant === "s"
@@ -566,16 +569,18 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
   const signaalGroeikans = `${veiligeScores[zwak[0]].label}: ${tips[zwak[0]].kort}`;
   const signaalOpvallend = `${veiligeScores[verr[0]].label}: scoort ${verr[1].score.toFixed(1)} - ${Math.abs(verr[1].score - gem) > 1.5 ? "opvallend afwijkend van jullie gemiddelde." : "iets om in de gaten te houden."}`;
 
-  async function sendAdminMail() {
-    if (adminMailSentRef.current) return;
-    adminMailSentRef.current = true;
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((value ?? "").trim());
+
+  async function sendAdminMailForRecipient(targetEmail) {
+    const normalizedEmail = (targetEmail ?? "").trim().toLowerCase();
+    if (!normalizedEmail || adminNotifiedEmailsRef.current.has(normalizedEmail)) return;
     await emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_ADMIN_TEMPLATE_ID,
       {
         participant_name: naam || "Onbekend",
-        participant_email: emailInput || "Niet ingevuld (skip)",
-        rapport_link: rapportLink,
+        participant_email: targetEmail || "Niet ingevuld (skip)",
+        rapport_link: buildRapportLink(targetEmail),
         quadrant_scores: quadrantSummary,
         strongest_quadrant: veiligeScores[sterk[0]].label,
         admin_email: ADMIN_EMAIL,
@@ -595,9 +600,17 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
       },
       { publicKey: EMAILJS_PUBLIC_KEY },
     );
+    adminNotifiedEmailsRef.current.add(normalizedEmail);
   }
 
-  async function handleRapportAanvragen() {
+  async function handleRapportAanvragen(targetEmail = emailInput) {
+    const normalizedEmail = (targetEmail ?? "").trim();
+    if (!isValidEmail(normalizedEmail)) {
+      setMailError("Vul een geldig e-mailadres in om het rapport te versturen.");
+      setEmailVerzonden(false);
+      return;
+    }
+
     setMailError("");
     setIsSendingEmail(true);
 
@@ -607,8 +620,8 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
         EMAILJS_USER_TEMPLATE_ID,
         {
           name: naam,
-          email: emailInput,
-          rapport_link: rapportLink,
+          email: normalizedEmail,
+          rapport_link: buildRapportLink(normalizedEmail),
           quadrant_scores: quadrantSummary,
           strongest_quadrant: veiligeScores[sterk[0]].label,
           answers: antwoordenSamenvatting,
@@ -640,8 +653,9 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
         { publicKey: EMAILJS_PUBLIC_KEY },
       );
 
-      await sendAdminMail();
+      await sendAdminMailForRecipient(normalizedEmail);
 
+      setEmailInput(normalizedEmail);
       setEmailVerzonden(true);
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
@@ -653,11 +667,9 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
   }
 
   useEffect(() => {
-    if (!skipLead || adminMailSentRef.current) return;
-    sendAdminMail().catch((error) => {
-      const msg = error instanceof Error ? error.message : String(error);
-      setMailError(msg);
-    });
+    if (skipLead || autoSendDoneRef.current || !isValidEmail(emailInput)) return;
+    autoSendDoneRef.current = true;
+    handleRapportAanvragen(emailInput);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skipLead]);
 
@@ -877,37 +889,35 @@ export default function ResultaatPagina({ scores = null, naam = "", email = "", 
             <div className="p-6">
               <h3 className="font-semibold text-gray-700 text-sm mb-1" style={{ fontFamily: "'Alegreya Sans', Georgia, serif" }}>Ontvang dit rapport in je mailbox</h3>
               <p className="text-gray-600 text-xs mb-3 leading-relaxed">We sturen je resultaten direct naar je inbox.</p>
-              {emailVerzonden ? (
-                <div className="rounded-xl p-4 text-center" style={{ background: kwadrantLicht.samenwerking }}>
-                  <div className="text-2xl mb-1">✓</div>
-                  <p className="font-bold text-sm" style={{ color: brand.groen }}>
-                    Rapport onderweg naar {emailInput}
-                  </p>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    placeholder="jouw@email.nl"
+                    className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 bg-white"
+                    style={{ "--tw-ring-color": brand.groen }}
+                  />
+                  <button
+                    onClick={() => handleRapportAanvragen(emailInput)}
+                    disabled={isSendingEmail}
+                    className="px-5 py-3 rounded-xl text-white text-sm font-bold flex-shrink-0 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                    style={{ background: brand.groen }}
+                  >
+                    {isSendingEmail && <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />}
+                    {isSendingEmail ? "Versturen..." : "E-mail mijn rapport nogmaals"}
+                  </button>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <input
-                      type="email"
-                      value={emailInput}
-                      onChange={(e) => setEmailInput(e.target.value)}
-                      placeholder="jouw@email.nl"
-                      className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 bg-white"
-                      style={{ "--tw-ring-color": brand.groen }}
-                    />
-                    <button
-                      onClick={handleRapportAanvragen}
-                      disabled={isSendingEmail}
-                      className="px-5 py-3 rounded-xl text-white text-sm font-bold flex-shrink-0 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-2"
-                      style={{ background: brand.groen }}
-                    >
-                      {isSendingEmail && <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />}
-                      {isSendingEmail ? "Versturen..." : "Mail mijn rapport"}
-                    </button>
+                {emailVerzonden && (
+                  <div className="rounded-xl p-3 text-center" style={{ background: kwadrantLicht.samenwerking }}>
+                    <p className="font-bold text-sm" style={{ color: brand.groen }}>
+                      Rapport onderweg naar {emailInput}
+                    </p>
                   </div>
-                  {mailError && <p className="text-xs text-red-600 break-all">EmailJS fout: {mailError}</p>}
-                </div>
-              )}
+                )}
+                {mailError && <p className="text-xs text-red-600 break-all">EmailJS fout: {mailError}</p>}
+              </div>
             </div>
           </div>
         </div>
