@@ -134,25 +134,25 @@ export const questions: Question[] = [
       "Denk aan de afgelopen week: deed je je werk vooral omdat het moest, of omdat je het zelf wilde doen?",
     quadrantId: "praktijk",
     anchors: [
-      { key: 1, label: "1–2", text: "Het voelde als een verplichting, er was weinig eigen keuze of drive" },
-      { key: 3, label: "3–4", text: "Vooral taken afwerken — af en toe iets wat energie gaf, maar niet structureel" },
-      { key: 5, label: "5–6", text: "Wisselend — soms gedreven, soms plichtshalve" },
-      { key: 7, label: "7–8", text: "Grotendeels vanuit eigen motivatie, het werk voelde als van jou" },
-      { key: 9, label: "9–10", text: "Volledig gedreven van binnenuit — je deed deze week precies wat bij jou past en waar je voor staat" },
+      { key: 1, label: "1–2", text: "De waan van de dag regeert, ik voel nauwelijks dat ik kan sturen" },
+      { key: 3, label: "3–4", text: "Meer achter de feiten aanlopen dan zelf sturen op wat ik belangrijk vind" },
+      { key: 5, label: "5–6", text: "Wisselend — soms voelde ik me gedreven, soms deed ik puur iets omdat het moest" },
+      { key: 7, label: "7–8", text: "Grotendeels vanuit eigen keuze — ik had ruimte en regie om te doen wat ik belangrijk vond" },
+      { key: 9, label: "9–10", text: "Volledig in de regie en gedreven — ik had de vrijheid om te werken op een manier die echt bij mij past" },
     ],
   },
   {
     id: "V7",
     title: "Heldere kaders",
     prompt:
-      "Denk aan de afgelopen week: waren de doelen voor jouw team concreet en meetbaar, of voelden ze vaag en voor meerdere uitleg vatbaar?",
+      "Denk aan de afgelopen week: waren de doelen voor jouw team concreet en meetbaar, of voelden ze onduidelijk en voor meerdere uitleg vatbaar?",
     quadrantId: "strategie-basis",
     anchors: [
-      { key: 1, label: "1–2", text: "Doelen zijn vaag, iedereen interpreteert ze anders" },
+      { key: 1, label: "1–2", text: "Doelen zijn onduidelijk — iedereen trekt er zijn eigen lijn in" },
       { key: 3, label: "3–4", text: "Er is een richting, maar concrete kaders ontbreken" },
       { key: 5, label: "5–6", text: "Sommige doelen zijn helder, andere niet" },
       { key: 7, label: "7–8", text: "De meeste doelen zijn concreet en voor iedereen duidelijk" },
-      { key: 9, label: "9–10", text: "Glashelder — iedereen weet wat succes er deze week uitziet" },
+      { key: 9, label: "9–10", text: "Volledig op één lijn — iedereen begrijpt de doelen op dezelfde manier en weet wat er van hen verwacht wordt" },
     ],
   },
   {
@@ -198,7 +198,7 @@ export const questions: Question[] = [
       "Denk aan de afgelopen week: voelde het dagelijkse werk als een bijdrage aan iets wat er echt toe doet, of was het vooral taken afwerken?",
     quadrantId: "missie-zingeving",
     anchors: [
-      { key: 1, label: "1–2", text: "Het werk voelde zinloos of louter functioneel" },
+      { key: 1, label: "1–2", text: "Het werk voelde puur uitvoerend — taken afwerken, zonder het gevoel ergens aan bij te dragen" },
       { key: 3, label: "3–4", text: "Af en toe een moment van betekenis, maar niet structureel" },
       { key: 5, label: "5–6", text: "Soms voelt het als meer dan taken, maar het is niet vanzelfsprekend" },
       {
